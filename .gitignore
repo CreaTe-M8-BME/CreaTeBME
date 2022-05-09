@@ -128,5 +128,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# PyPi configuration
+.pypirc
+
 #IDE files
 .idea/

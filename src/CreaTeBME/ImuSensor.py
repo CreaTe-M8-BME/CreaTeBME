@@ -1,6 +1,5 @@
 import bluetooth
 import serial
-from numpy import nanmean
 
 MODE_WIRED = 0
 MODE_WIRELESS = 1
@@ -12,7 +11,7 @@ class ImuSensor:
         self.__sens_gyro = 16.4
         self.__mode = mode
         if mode is MODE_WIRED:
-            self.serial_sensor = serial.Serial(addr)
+            self.serial_sensor = serial.Serial(addr, timeout=0)
         elif mode is MODE_WIRELESS:
             services = bluetooth.find_service(address=addr)
             for serv in services:
@@ -38,6 +37,12 @@ class ImuSensor:
         elif self.__mode is MODE_WIRELESS:
             return self.bt_sensor.recv(byte_len)
 
+    def read(self, byte_len):
+        return self.__read(byte_len)
+
+    def write(self, data):
+        return self.__write(data)
+
     def __write(self, data):
         if self.__mode is MODE_WIRED:
             return self.serial_sensor.write(data)
@@ -55,8 +60,9 @@ class ImuSensor:
         inbytes = b''
         inbyte = [inbytes] * 6
         output = [None] * 6
-        while len(inbytes) < 12:
-            inbytes += self.__read(12 - len(inbytes))
+        while len(inbytes) < 6:
+            print('reading ',inbytes)
+            inbytes += self.__read(6 - len(inbytes))
         for z in range(0, 6):
             input_bytes = inbytes[z*2:z*2+2]
             num = int.from_bytes(input_bytes, "big", signed=True)

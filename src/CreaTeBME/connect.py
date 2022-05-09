@@ -13,6 +13,7 @@ prompt_style = Style.from_dict({
     'checkbox-list': '#ffffff',
 })
 
+
 def connect():
     paired_devices = __read_paired_devices()
     if not paired_devices:
