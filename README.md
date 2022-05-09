@@ -38,7 +38,7 @@ For a wired sensor, the bluetooth address is used, this will look like `01:23:45
 
 ### Windows installation
 On Windows, during the installation a compile error for pybluez will likely come up.
-To solve this, install the pybluez 0.22 wheel before installing this package. A PyBluez 0.22 wheel for Python 3.8 can be found [here](https://raw.githubusercontent.com/CreaTe-M8-BME/CreaTeBME/main/PyBluez-0.22-cp38-cp38-win_amd64.whl).
+To solve this, install the pybluez 0.22 wheel before installing this package. A PyBluez 0.22 wheel for Python 3.8 can be found [here](https://github.com/CreaTe-M8-BME/CreaTeBME/raw/main/PyBluez-0.22-cp38-cp38-win_amd64.whl).
 Download it to your current directory and install it using `pip install PyBluez-0.22-cp38-cp38-win_amd64.whl`.
 
 ### Running in PyCharm
