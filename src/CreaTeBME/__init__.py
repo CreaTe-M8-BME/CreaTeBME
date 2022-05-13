@@ -1,1 +1,2 @@
-from CreaTeBME.connect import connect
+from .connect import connect
+from .ImuSensor import ImuSensor

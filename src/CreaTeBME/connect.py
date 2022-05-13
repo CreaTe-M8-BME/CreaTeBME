@@ -1,10 +1,8 @@
-from os.path import exists
 import bluetooth
 import sys
-from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import checkboxlist_dialog, yes_no_dialog
 from prompt_toolkit.styles import Style
-from CreaTeBME.ImuSensor import MODE_WIRELESS, ImuSensor
+from .ImuSensor import MODE_WIRELESS, ImuSensor
 
 prompt_style = Style.from_dict({
     'dialog': '#ffffff bg:',
@@ -24,7 +22,6 @@ def connect():
             sys.exit(1)
     sensors = []
     for device in paired_devices:
-        print(device[0])
         sensor = ImuSensor(MODE_WIRELESS, device[0])
         sensors.append(sensor)
     return sensors
@@ -74,7 +71,6 @@ def __write_paired_devices(devices):
     with open('paireddevices', 'a+') as f:
         f.seek(0)
         paired_devices = f.readlines()
-        print(paired_devices)
         devices = [' '.join(device)+'\n' for device in devices]
         devices = [device for device in devices if device not in paired_devices]
         f.writelines(devices)

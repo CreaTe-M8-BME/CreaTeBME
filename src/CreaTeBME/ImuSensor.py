@@ -60,9 +60,8 @@ class ImuSensor:
         inbytes = b''
         inbyte = [inbytes] * 6
         output = [None] * 6
-        while len(inbytes) < 6:
-            print('reading ',inbytes)
-            inbytes += self.__read(6 - len(inbytes))
+        while len(inbytes) < 12:
+            inbytes += self.__read(12 - len(inbytes))
         for z in range(0, 6):
             input_bytes = inbytes[z*2:z*2+2]
             num = int.from_bytes(input_bytes, "big", signed=True)
