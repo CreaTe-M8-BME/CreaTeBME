@@ -11,7 +11,6 @@ prompt_style = Style.from_dict({
     'checkbox-list': '#ffffff',
 })
 
-
 def connect():
     paired_devices = __read_paired_devices()
     if not paired_devices:
@@ -22,10 +21,17 @@ def connect():
             sys.exit(1)
     sensors = []
     for device in paired_devices:
-        sensor = ImuSensor(MODE_WIRELESS, device[0])
-        sensors.append(sensor)
-    return sensors
+        try:
+            sensor = ImuSensor(MODE_WIRELESS, device[0])
+            sensors.append(sensor)
+        except:
+            print(f"{device[0]} could not connect!")
 
+    if(sensors):
+        return sensors
+
+    print('No devices connected at all! Exiting')
+    sys.exit(1)
 
 def __pair_new_device():
     try:
