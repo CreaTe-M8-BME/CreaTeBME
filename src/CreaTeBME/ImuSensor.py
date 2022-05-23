@@ -56,9 +56,8 @@ class ImuSensor:
         return data/self.__sens_gyro
 
     def take_measurement(self):
-        self.__write(b'a\n')
+        self.__write(b'a')
         inbytes = b''
-        inbyte = [inbytes] * 6
         output = [None] * 6
         while len(inbytes) < 12:
             inbytes += self.__read(12 - len(inbytes))
