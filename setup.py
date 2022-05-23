@@ -7,7 +7,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name='CreaTeBME',
-    version='0.0.5',
+    version='0.0.6',
     author='Jonathan Matarazzi',
     author_email='dev@jonathanm.nl',
     description='Python Package for interfacing the bluetooth IMU module for CreaTe M8 BME.',
