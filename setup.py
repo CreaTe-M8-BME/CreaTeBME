@@ -27,7 +27,7 @@ setup(
     python_requires='>=3.6',
     install_requires=[
         'pyserial >= 3.5',
-        'pybluez == 0.22',
+        'pybluez == 0.30',
         'prompt_toolkit >= 3.0.29',
     ]
 )

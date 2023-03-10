@@ -1,4 +1,4 @@
-import bluetooth
+from bleak import BleakClient
 import serial
 
 MODE_WIRED = 0
@@ -13,15 +13,11 @@ class ImuSensor:
         if mode is MODE_WIRED:
             self.serial_sensor = serial.Serial(addr, timeout=0)
         elif mode is MODE_WIRELESS:
-            services = bluetooth.find_service(address=addr)
-            for serv in services:
-                if serv['name'] == b'ESP32SPP\x00':
-                    self.bt_sensor = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-                    self.bt_sensor.connect((serv['host'], serv['port']))
-                    self.bt_sensor.setblocking(0)
-                    self.bt_sensor.settimeout(1000)
-                    return
-            raise RuntimeError('Could not connect to sensor.')
+            self.bt_client = BleakClient(addr)
+            try:
+                self.bt_client.connect()
+            except Exception as e:
+                raise RuntimeError('Could not connect to sensor: ', e)
         else:
             raise ValueError('Invalid mode selected.')
 
@@ -29,7 +25,7 @@ class ImuSensor:
         if hasattr(self, 'serial_sensor'):
             self.serial_sensor.close()
         elif hasattr(self, 'bt_sensor'):
-            self.bt_sensor.close()
+            self.bt_client.disconnect()
 
     def __read(self, byte_len):
         if self.__mode is MODE_WIRED:
