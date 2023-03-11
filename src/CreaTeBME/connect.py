@@ -21,9 +21,14 @@ async def connect():
         if not paired_devices:
             print('Still no paired devices, exiting.')
             sys.exit(1)
+    devices = await BleakScanner.discover(return_adv=True)
+    print(paired_devices)
+    imus = list(filter(lambda x: x[1][1].local_name in paired_devices, devices.items()))
+    print(imus)
     sensors = []
-    for device in paired_devices:
-        sensor = ImuSensor(MODE_WIRELESS, device[1])
+    for device in imus:
+        sensor = ImuSensor(device[1][0])
+        await sensor.connect()
         sensors.append(sensor)
     return sensors
 
@@ -39,7 +44,7 @@ async def __pair_new_device():
             title='Pair devices',
             text='Which devices would you like to pair?',
             style=prompt_style,
-            values=[(device, device[0]) for device in devices]
+            values=[(device, device[1][1].local_name) for device in devices]
         ).run_async()
         __write_paired_devices(results)
         return __read_paired_devices()
@@ -56,8 +61,7 @@ def __print_devices(devices):
 
 async def __search_devices():
     devices = await BleakScanner.discover(return_adv=True)
-    filtered_devices = list(filter(lambda x: x[1][1].local_name and x[1][1].local_name.startswith('BME-IMU-'), devices.items()))
-    imus = [(device[1][1].local_name, device[0]) for device in filtered_devices]
+    imus = list(filter(lambda x: '0ddf5c1d-d269-4b17-bd7f-33a8658f0b89' in x[1][1].service_uuids, devices.items()))
     if len(imus) == 0:
         search_again = await yes_no_dialog(
             title='Search again?',
@@ -74,7 +78,7 @@ def __write_paired_devices(devices):
     with open('paireddevices', 'a+') as f:
         f.seek(0)
         paired_devices = f.readlines()
-        devices = [' '.join(device)+'\n' for device in devices]
+        devices = [device[1][1].local_name+'\n' for device in devices]
         devices = [device for device in devices if device not in paired_devices]
         f.writelines(devices)
 
@@ -82,7 +86,7 @@ def __write_paired_devices(devices):
 def __read_paired_devices():
     try:
         with open('paireddevices', 'r') as f:
-            paired_devices = [device[0:-1].split(' ') for device in f.readlines()]
+            paired_devices = f.read().splitlines()
         return paired_devices
     except FileNotFoundError:
         return []
@@ -90,7 +94,7 @@ def __read_paired_devices():
 
 def __delete_paired_devices(devices):
     with open('paireddevices', 'r+') as f:
-        devices = [' '.join(device) + '\n' for device in devices]
+        devices = [' '.join(device) for device in devices]
         paired_devices = f.readlines()
         paired_devices = [device for device in paired_devices if device not in devices]
         f.seek(0)

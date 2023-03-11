@@ -4,10 +4,16 @@ import asyncio
 
 async def main():
     sensors = await connect()
+    print(sensors)
+    for sensor in sensors:
+        print(await sensor.set_callback(print_measurement))
 
     while True:
-        for sensor in sensors:
-            measurement = sensor.take_measurement()
-            print(measurement)
+        continue
 
-asyncio.run(main())
+
+def print_measurement(data):
+    print(data)
+
+
+task = asyncio.run(main())
