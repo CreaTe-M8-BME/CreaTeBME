@@ -3,7 +3,7 @@ import sys
 from bleak import BleakScanner
 from prompt_toolkit.shortcuts import checkboxlist_dialog, yes_no_dialog
 from prompt_toolkit.styles import Style
-from .ImuSensor import MODE_WIRELESS, ImuSensor
+from .ImuSensor import ImuSensor
 
 prompt_style = Style.from_dict({
     'dialog': '#ffffff bg:',
