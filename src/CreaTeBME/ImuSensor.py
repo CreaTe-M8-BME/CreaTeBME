@@ -34,7 +34,10 @@ class ImuSensor:
             else:
                 output[i] = self.__convert_gyro(num)
         self.__reading = output
-        self.__callback(output)
+        if self.__callback:
+            self.__callback(output)
+        else:
+            print(output)
 
     def __convert_acc(self, data):
         return data / self.__sens_acc
