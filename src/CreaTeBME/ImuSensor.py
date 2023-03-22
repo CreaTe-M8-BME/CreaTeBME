@@ -37,7 +37,7 @@ class ImuSensor:
         if self.__callback:
             self.__callback(output)
         else:
-            print(output)
+            print(f"no callback, {output = }")
 
     def __convert_acc(self, data):
         return data / self.__sens_acc
