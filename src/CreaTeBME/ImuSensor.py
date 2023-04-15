@@ -58,13 +58,13 @@ class ImuSensor:
 
     async def set_sample_rate(self, sample_rate: int):
         delay_val = int(1/sample_rate*1000)
-        return await self.__bt_client.write_gatt_char(
+        await self.__bt_client.write_gatt_char(
             self.__sample_rate_char,
             int.to_bytes(delay_val, 2, "big", signed=False),
             response=True
         )
 
-    def get_reading(self):
+    def get_reading(self) -> list[float]:
         return self.__reading
 
     def set_callback(self, callback: Callable[[str, list[float]], None]):

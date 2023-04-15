@@ -5,7 +5,7 @@ from typing import Callable
 
 
 class SensorManager:
-    def __init__(self, sensor_names: list[str], callback: Callable[[str, list[float]], None], sample_rate: int = 100) -> None:
+    def __init__(self, sensor_names: list[str], callback: Callable[[str, list[float]], None], sample_rate: int = 100):
         self._sensors = []
         self._sample_rate = sample_rate
         self._stopping = False
@@ -47,9 +47,8 @@ class SensorManager:
         for sensor in self._sensors:
             await sensor.set_sample_rate(self._sample_rate)
 
-    def set_sample_rate(self, sample_rate: int = None) -> None:
-        if sample_rate:
-            self._sample_rate = sample_rate
+    def set_sample_rate(self, sample_rate: int) -> None:
+        self._sample_rate = sample_rate
         self._loop.create_task(self._set_sample_rate())
 
     def __del__(self):
