@@ -1,4 +1,5 @@
-from bleak import BleakClient
+from bleak import BleakClient, BLEDevice
+from typing import Callable
 
 _IMU_SERVICE_UUID = '0ddf5c1d-d269-4b17-bd7f-33a8658f0b89'
 _IMU_CHAR_UUID = '64b83770-6b12-4a54-b31a-e007306132bd'
@@ -6,7 +7,7 @@ _SAMPLE_RATE_CHAR_UUID = '3003aac7-d843-4e55-9d89-3f93020cc9ee'
 
 
 class ImuSensor:
-    def __init__(self, device, callback=None):
+    def __init__(self, device: BLEDevice, callback: Callable[[str, list[float]], None] = None, name: str = None):
         self.__sample_rate_char = None
         self.__imu_char = None
         self.__imu_service = None
@@ -14,17 +15,15 @@ class ImuSensor:
         self.__sens_gyro = 16.4
         self.__callback = callback
         self.__reading = None
+        self.__name = name if name else device.name[-4:]
 
         # Connect to ble device
         self.__bt_client = BleakClient(device)
 
     def __del__(self):
-        if hasattr(self, 'serial_sensor'):
-            self.serial_sensor.close()
-        elif hasattr(self, 'bt_sensor'):
-            self.__bt_client.disconnect()
+        self.__bt_client.disconnect()
 
-    def __receive_reading(self, char, inbytes):
+    def __receive_reading(self, characteristic, inbytes):
         output = [None] * 6
         for i in range(0, 6):
             input_bytes = inbytes[i * 2:i * 2 + 2]
@@ -35,9 +34,7 @@ class ImuSensor:
                 output[i] = self.__convert_gyro(num)
         self.__reading = output
         if self.__callback:
-            self.__callback(output)
-        else:
-            print(f"no callback, {output = }")
+            self.__callback(self.__name, output)
 
     def __convert_acc(self, data):
         return data / self.__sens_acc
@@ -59,7 +56,7 @@ class ImuSensor:
         # # Register callback for notify events
         await self.__bt_client.start_notify(self.__imu_char, self.__receive_reading)
 
-    async def set_sample_rate(self, sample_rate):
+    async def set_sample_rate(self, sample_rate: int):
         delay_val = int(1/sample_rate*1000)
         return await self.__bt_client.write_gatt_char(
             self.__sample_rate_char,
@@ -70,7 +67,7 @@ class ImuSensor:
     def get_reading(self):
         return self.__reading
 
-    async def set_callback(self, callback):
+    def set_callback(self, callback: Callable[[str, list[float]], None]):
         if not callable(callback):
             return TypeError('Callback should be a function')
         self.__callback = callback
