@@ -50,6 +50,11 @@ def callback(name, data):
     print(name, data)
 ```
 
+The data passed to the callback is a list of floats.
+The list is structured like this
+- **[0:2]** = x,y,z of accelerometer in (g).
+- **[3:5]** = x,y,z of gyroscope in (deg/s).
+
 To start reading data from the sensors call the `start` method of the `SensorManager`.
 ```python
 manager.start()
@@ -82,14 +87,24 @@ async def connect():
 
 # API Reference
 
+## Helpers
+
+### `connect(sensor_names: list[str])`
+
+Finds the IMU devices corresponding with the given list, create a ImuSensor object for each and return a list of ImuSensor objects.
+
 ## ImuSensor
 
 Class for IMU sensor communication.
 
-### `ImuSensor(device: BLEDevice, callback: (str, list[float]) -> None = None, name: str = None)`
+### `ImuSensor(device: BLEDevice, callback: (name: str, data: list[float]) -> None = None, name: str = None)`
 
 Initialize an ImuSensor object.
+
 Calls a callback whenever a sensor measurement is received.
+Where name is the friendly name of the sensor and data:
+- **[0:2]** = x,y,z of accelerometer in (g).
+- **[3:5]** = x,y,z of gyroscope in (deg/s).
 
 #### Parameters
 
@@ -109,9 +124,13 @@ Set the sample rate in Hz at which the sensor should take measurements.
 
 - **sample_rate** - The sample rate in Hz.
 
-### `ImuSensor.set_callback(callback: (str, list[float]) -> None) -> None`
+### `ImuSensor.set_callback(callback: (name: str, data: list[float]) -> None) -> None`
 
 Set the callback that should be called when a measurement is received from the sensor.
+
+Where name is the friendly name of the sensor and data:
+- **[0:2]** = x,y,z of accelerometer in (g).
+- **[3:5]** = x,y,z of gyroscope in (deg/s).
 
 #### Parameters
 
@@ -119,16 +138,22 @@ Set the callback that should be called when a measurement is received from the s
 
 ### `ImuSensor.get_reading() -> list[float]`
 
-Return the most recent measurement.
+Return the most recent measurement as a list of floats with:
+- **[0:2]** = x,y,z of accelerometer in (g).
+- **[3:5]** = x,y,z of gyroscope in (deg/s).
 
 ## SensorManager
 Class for easy sensor connection without asyncio knowledge.
 
-### `SensorManager(sensor_names: list[str], callback: (str, list[float]) -> None, sample_rate: int = 100)`
+### `SensorManager(sensor_names: list[str], callback: (name: str, data: list[float]) -> None, sample_rate: int = 100)`
 
 Initialize a SensorManager object.
 Connects the given sensors and sets their callback and sample rate.
 Holds internal `ImuSensor` objects.
+
+Where name is the friendly name of the sensor and data:
+- **[0:2]** = x,y,z of accelerometer in (g).
+- **[3:5]** = x,y,z of gyroscope in (deg/s).
 
 #### Parameters
 
@@ -144,9 +169,13 @@ Start the ImuSensor objects to listen for measurements.
 
 Stops the ImuSensors from listening for measurements
 
-### `SensorManager.set_callback(callback: (str, list[float]) -> None) -> None`
+### `SensorManager.set_callback(callback: (name: str, data: list[float]) -> None) -> None`
 
 Sets the callback for all ImuSensor objects within this SensorManager.
+
+Where name is the friendly name of the sensor and data:
+- **[0:2]** = x,y,z of accelerometer in (g).
+- **[3:5]** = x,y,z of gyroscope in (deg/s).
 
 #### Parameters
 

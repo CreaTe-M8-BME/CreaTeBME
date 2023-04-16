@@ -1,5 +1,5 @@
 from bleak import BleakClient, BLEDevice
-from typing import Callable
+from typing import Callable, List
 
 _IMU_SERVICE_UUID = '0ddf5c1d-d269-4b17-bd7f-33a8658f0b89'
 _IMU_CHAR_UUID = '64b83770-6b12-4a54-b31a-e007306132bd'
@@ -7,7 +7,7 @@ _SAMPLE_RATE_CHAR_UUID = '3003aac7-d843-4e55-9d89-3f93020cc9ee'
 
 
 class ImuSensor:
-    def __init__(self, device: BLEDevice, callback: Callable[[str, list[float]], None] = None, name: str = None):
+    def __init__(self, device: BLEDevice, callback: Callable[[str, List[float]], None] = None, name: str = None):
         self.__sample_rate_char = None
         self.__imu_char = None
         self.__imu_service = None
@@ -64,10 +64,10 @@ class ImuSensor:
             response=True
         )
 
-    def get_reading(self) -> list[float]:
+    def get_reading(self) -> List[float]:
         return self.__reading
 
-    def set_callback(self, callback: Callable[[str, list[float]], None]):
+    def set_callback(self, callback: Callable[[str, List[float]], None]):
         if not callable(callback):
             return TypeError('Callback should be a function')
         self.__callback = callback

@@ -1,8 +1,9 @@
 from bleak import BleakScanner
+from typing import List
 from .ImuSensor import ImuSensor
 
 
-async def connect(sensor_names: list[str]):
+async def connect(sensor_names: List[str]):
     devices = await BleakScanner.discover(return_adv=True)
     imus = list(filter(lambda x: '0ddf5c1d-d269-4b17-bd7f-33a8658f0b89' in x[1][1].service_uuids, devices.items()))
     chosen_imus = list(filter(lambda x: x[1][1].local_name[-4:] in sensor_names, imus))
