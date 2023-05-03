@@ -28,7 +28,6 @@ async def main():
         await sensor.set_callback(print_measurement)
         await sensor.set_sample_rate(100)
 
-    print('yay')
 
 
 threading.Thread(target=worker).start()
