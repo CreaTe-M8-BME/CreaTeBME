@@ -22,7 +22,7 @@ def worker():
 
 
 def print_measurement(data):
-    print('het werkt:', data)
+    print('Sensor data:', data)
     pass
 
 
