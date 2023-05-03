@@ -1,7 +1,7 @@
 import warnings
 
 from bleak import BleakClient, BLEDevice
-from typing import Callable, List
+from typing import Callable, List, Union
 
 _IMU_SERVICE_UUID = '0ddf5c1d-d269-4b17-bd7f-33a8658f0b89'
 _IMU_CHAR_UUID = '64b83770-6b12-4a54-b31a-e007306132bd'
@@ -126,7 +126,7 @@ class ImuSensor:
         """
         return self.__reading
 
-    def set_callback(self, callback: Callable[[str, List[float]], None]) -> None | TypeError:
+    def set_callback(self, callback: Callable[[str, List[float]], None]) -> Union[None, TypeError]:
         """
         Set a callback to be run when a sensor measurement comes in.
 
