@@ -11,10 +11,6 @@ async def connect_sensors():
     sensors.extend(await connect())
     print(sensors)
 
-
-    # while True:
-    #     await asyncio.sleep(1)
-
 def worker():
     loop = asyncio.new_event_loop()
     task = loop.create_task(connect_sensors())
