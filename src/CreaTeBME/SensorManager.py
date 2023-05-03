@@ -31,6 +31,7 @@ class SensorManager:
         self._loop.run_until_complete(self._create_sensors(sensor_names))
         for sensor in self._sensors:
             sensor.set_callback(self.__receive_reading)
+        self._is_running = False
 
     def start(self) -> None:
         """
@@ -40,6 +41,7 @@ class SensorManager:
         if not self._loop.is_running():
             self._thread = Thread(target=self._run)
             self._thread.start()
+        self._is_running = True
 
     def stop(self) -> None:
         """
@@ -52,6 +54,10 @@ class SensorManager:
             continue
         self._loop.run_until_complete(self._disconnect_sensors())
         self._clear_queue()
+        self._is_running = False
+
+    def is_running(self) -> bool:
+        return self._is_running
 
     def _run(self) -> None:
         self._loop.create_task(self._connect_sensors())
