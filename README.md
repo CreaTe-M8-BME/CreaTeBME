@@ -1,46 +1,90 @@
 # CreaTeBME
 Python Package for interfacing the bluetooth IMU module for CreaTe M8 BME.
 
-## Installation
-To install the latest stable version simply run `pip install CreaTeBME`.
-
-## Usage
-
-### Easy Wireless
-To connect to the sensors, a simple call of the `connect()` method can be used. This method will return a list of `ImuSensor` objects.
-```python
-from CreaTeBME import connect
-
-sensors = connect()
+# Installation
+To install the latest stable version simply run
+```shell
+pip install CreaTeBME
 ```
-The `take_mesurement()` method of the ImuSensor objects can in return be used to read out the gyroscope and accelerometer data.
+
+# Example
+A simple example to connect to a sensor and read and print the data for 10 seconds.
 ```python
+import time
+from CreaTeBME import SensorManager
+
+# Create a sensor manager for the given sensor names using the given callback
+manager = SensorManager(['0BE6'])
+
+# Start the sensor manager
+manager.start()
+
 while True:
-    for sensor in sensors:
-        measurement = sensor.take_measurement()
-        # Do something with the data
+    measurements = manager.get_measurements()
+    for sensor, data in measurements.items():
+        print(sensor, len(data))
+
+# Stop the sensor manager
+manager.stop()
 ```
-This will return a list of the accelerometer and gyroscope data in the form `[acc_x, acc_y, acc_z, gyr_x, gyr_y, gyr_z]`. The accelerometer values are given in `g (9.81 m/s^2)` and the gyroscope values in `deg/s`.
 
-### Manual Wired and Wireless
+# Usage
 
-Another way of connecting IMU sensors is to manually create `ImuSensor` objects. This can be done by specifying the mode and the address of the sensor.
+## SensorManager (asyncio wrapper)
+This package uses [Bleak](https://github.com/hbldh/bleak) for the bluetooth communication.
+Bleak uses asyncio, thus this package has to use this too.
+To ease usage, a wrapper has been made for people not experienced with asyncio.
+This wrapper also automates the connection of the sensors over bluetooth.
+
+To connect to the sensors, simply initialize a `SensorManager` object with the sensor names.
 ```python
-from CreaTeBME.ImuSensor import ImuSensor, MODE_WIRED, MODE_WIRELESS
+from CreaTeBME import SensorManager
 
-sensor_wired = ImuSensor(MODE_WIRED, 'COM4')
-sensor_wireless = ImuSensor(MODE_WIRELESS, '01:23:45:67:89:AB')
+manager = SensorManager(['A1B2', 'C3D4'])
 ```
-For a wired sensor, the address is the serial port on the computer, on Windows this will be `COM` followed by a number.
-For a wired sensor, the bluetooth address is used, this will look like `01:23:45:67:89:AB`.
 
-## Common errors
+To get the IMU measurements the `get_measurements()' method can be used.
+This returns the measurements received since the last time this method was called.
+```python
+measurements = manager.get_measurements()
+```
 
-### Windows installation
-On Windows, during the installation a compile error for pybluez will likely come up.
-To solve this, install the pybluez 0.22 wheel before installing this package. A PyBluez 0.22 wheel for Python 3.8 can be found [here](https://github.com/CreaTe-M8-BME/CreaTeBME/raw/main/PyBluez-0.22-cp38-cp38-win_amd64.whl).
-Download it to your current directory and install it using `pip install PyBluez-0.22-cp38-cp38-win_amd64.whl`.
+The data returned by this method is a dictionary containing a list for each sensor with the received measurements.
+A single measurement is a list of 6 floats.
+The measurements are structured like this
+- **[0:2]** = x,y,z of accelerometer in (g).
+- **[3:5]** = x,y,z of gyroscope in (deg/s).
 
-### Running in PyCharm
-When using this package and running your program in PyCharm, an error complaining about CMD not being found can show. To solve this, run `py xxx.py` in the terminal, where `xxx` is the file name of the python file you want to run.
+To start reading data from the sensors call the `start` method of the `SensorManager`.
+```python
+manager.start()
+```
 
+Make sure to also call the `stop` method when exiting your program.
+```python
+manager.stop()
+```
+## Manual Connection
+⚠️**Understanding of** asyncio **required**⚠️
+
+Another way of connecting IMU sensors is to manually create `ImuSensor` objects.
+This can be done by specifying the BLE device that should be connected as a sensor.
+```python
+from CreaTeBME import ImuSensor
+
+sensor = ImuSensor(device)
+```
+
+The device has to be a Bleak _BLEDevice_ object that can be acquired using the `discover` method of `BleakScanner`.
+```python
+from bleak import BleakScanner
+from CreaTeBME import ImuSensor
+
+async def connect():
+    devices = await BleakScanner.discover(return_adv=True)
+    sensor = ImuSensor(devices[0])
+```
+
+# API reference
+
+For the API reference look [here](./docs/api.md)

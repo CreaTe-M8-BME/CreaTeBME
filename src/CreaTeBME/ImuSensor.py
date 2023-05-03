@@ -1,71 +1,143 @@
-import bluetooth
-import serial
+import warnings
+import asyncio
 
-MODE_WIRED = 0
-MODE_WIRELESS = 1
+from bleak import BleakClient, BLEDevice
+from typing import Callable, List, Union
+
+_IMU_SERVICE_UUID = '0ddf5c1d-d269-4b17-bd7f-33a8658f0b89'
+_IMU_CHAR_UUID = '64b83770-6b12-4a54-b31a-e007306132bd'
+_SAMPLE_RATE_CHAR_UUID = '3003aac7-d843-4e55-9d89-3f93020cc9ee'
+_VERSION_CHAR_UUID = '2980b86f-dacb-43b9-847c-30c586224943'
 
 
 class ImuSensor:
-    def __init__(self, mode, addr):
+    """
+    An interface for the BLE IMU sensors.
+    """
+    def __init__(self, device: BLEDevice, callback: Callable[[str, List[float]], None] = None, name: str = None):
+        """
+        Construct an ImuSensor.
+
+        :param device: The BLE device to use as the sensor
+        :param callback: [Optional] A callback to run for each measurement
+        :param name: [Optional] A readable name for the sensor
+        """
+        self.__sample_rate_char = None
+        self.__imu_char = None
+        self.__version_char = None
+        self.__imu_service = None
         self.__sens_acc = 2048
         self.__sens_gyro = 16.4
-        self.__mode = mode
-        if mode is MODE_WIRED:
-            self.serial_sensor = serial.Serial(addr, timeout=0)
-        elif mode is MODE_WIRELESS:
-            services = bluetooth.find_service(address=addr)
-            for serv in services:
-                if serv['name'] == b'ESP32SPP\x00':
-                    self.bt_sensor = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-                    self.bt_sensor.connect((serv['host'], serv['port']))
-                    self.bt_sensor.setblocking(0)
-                    self.bt_sensor.settimeout(1000)
-                    return
-            raise RuntimeError('Could not connect to sensor.')
-        else:
-            raise ValueError('Invalid mode selected.')
+        self.__callback = callback
+        self.__reading = None
+        self.__sample_rate_reserve = None
+        self.__name = name if name else device.name[-4:]
+
+        # Connect to ble device
+        self.__bt_client = BleakClient(device)
 
     def __del__(self):
-        if hasattr(self, 'serial_sensor'):
-            self.serial_sensor.close()
-        elif hasattr(self, 'bt_sensor'):
-            self.bt_sensor.close()
+        asyncio.run(self.disconnect())
 
-    def __read(self, byte_len):
-        if self.__mode is MODE_WIRED:
-            return self.serial_sensor.read(byte_len)
-        elif self.__mode is MODE_WIRELESS:
-            return self.bt_sensor.recv(byte_len)
-
-    def read(self, byte_len):
-        return self.__read(byte_len)
-
-    def write(self, data):
-        return self.__write(data)
-
-    def __write(self, data):
-        if self.__mode is MODE_WIRED:
-            return self.serial_sensor.write(data)
-        elif self.__mode is MODE_WIRELESS:
-            return self.bt_sensor.send(data)
+    def __receive_reading(self, characteristic, inbytes):
+        output = [None] * 6
+        for i in range(0, 6):
+            input_bytes = inbytes[i * 2:i * 2 + 2]
+            num = int.from_bytes(input_bytes, "big", signed=True)
+            if i < 3:
+                output[i] = self.__convert_acc(num)
+            else:
+                output[i] = self.__convert_gyro(num)
+        self.__reading = output
+        if self.__callback:
+            self.__callback(self.__name, output)
 
     def __convert_acc(self, data):
-        return data/self.__sens_acc
+        return data / self.__sens_acc
 
     def __convert_gyro(self, data):
-        return data/self.__sens_gyro
+        return data / self.__sens_gyro
 
-    def take_measurement(self):
-        self.__write(b'a')
-        inbytes = b''
-        output = [None] * 6
-        while len(inbytes) < 12:
-            inbytes += self.__read(12 - len(inbytes))
-        for z in range(0, 6):
-            input_bytes = inbytes[z*2:z*2+2]
-            num = int.from_bytes(input_bytes, "big", signed=True)
-            if z < 3:
-                output[z] = self.__convert_acc(num)
-            else:
-                output[z] = self.__convert_gyro(num)
-        return output
+    async def __get_version(self) -> str:
+        version_bytes = await self.__bt_client.read_gatt_char(self.__version_char)
+        version = version_bytes.decode('ascii')
+        return version
+
+    async def connect(self) -> None:
+        """
+        Connect to the BLE device.
+        """
+        try:
+            await self.__bt_client.connect()
+        except Exception as e:
+            raise RuntimeError('Could not connect to sensor: ', e)
+
+        # Read and store services and characteristics
+        self.__imu_service = self.__bt_client.services.get_service(_IMU_SERVICE_UUID)
+        self.__imu_char = self.__imu_service.get_characteristic(_IMU_CHAR_UUID)
+        self.__sample_rate_char = self.__imu_service.get_characteristic(_SAMPLE_RATE_CHAR_UUID)
+        self.__version_char = self.__imu_service.get_characteristic(_VERSION_CHAR_UUID)
+
+        # Register callback for notify events
+        await self.__bt_client.start_notify(self.__imu_char, self.__receive_reading)
+
+        # Set sample rate if reserve exists
+        if self.__sample_rate_reserve:
+            await self.set_sample_rate(self.__sample_rate_reserve)
+
+    async def disconnect(self) -> None:
+        if self.__bt_client.is_connected:
+            await self.__bt_client.stop_notify(self.__imu_char)
+            await self.__bt_client.disconnect()
+
+    async def set_sample_rate(self, sample_rate: int) -> bool:
+        """
+        Set the sample frequency of the sensor.
+
+        :param sample_rate: The sample frequency
+        :return: Boolean indicating if the sample rate was correctly set
+        """
+        if not self.__bt_client.is_connected:
+            self.__sample_rate_reserve = sample_rate
+        else:
+            await self.__bt_client.write_gatt_char(
+                self.__sample_rate_char,
+                int.to_bytes(sample_rate, 2, "little", signed=False),
+                response=True
+            )
+            actual_freq = await self.get_sample_rate()
+
+            success = actual_freq == sample_rate
+            if not success:
+                warnings.warn(f"Sample rate set to {actual_freq}", RuntimeWarning)
+
+            return success
+
+    async def get_sample_rate(self) -> int:
+        """
+        Read the sample frequency from the sensor.
+
+        :return: The sample frequency
+        """
+        sampling_rate_bytes = await self.__bt_client.read_gatt_char(
+            self.__sample_rate_char
+        )
+        return int.from_bytes(sampling_rate_bytes, "little", signed=False)
+
+    def get_reading(self) -> List[float]:
+        """
+        Get the last measurement received from the sensor.
+
+        :return: A IMU measurement
+        """
+        return self.__reading
+
+    def set_callback(self, callback: Callable[[str, List[float]], None]) -> Union[None, TypeError]:
+        """
+        Set a callback to be run when a sensor measurement comes in.
+
+        :param callback: A callback function that takes the sensor name and sensor measurement
+        """
+        if not callable(callback):
+            return TypeError('Callback should be a function')
+        self.__callback = callback

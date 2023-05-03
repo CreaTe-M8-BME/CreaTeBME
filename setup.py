@@ -3,13 +3,13 @@ from setuptools import setup
 
 from pathlib import Path
 this_directory = Path(__file__).parent
-long_description = (this_directory / "README.md").read_text()
+long_description = (this_directory / "README.md").read_text('utf-8')
 
 setup(
     name='CreaTeBME',
-    version='0.0.6',
+    version='1.0.0',
     author='Jonathan Matarazzi',
-    author_email='dev@jonathanm.nl',
+    author_email='git@jonathanm.nl',
     description='Python Package for interfacing the bluetooth IMU module for CreaTe M8 BME.',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -24,10 +24,8 @@ setup(
     ],
     package_dir={'': 'src'},
     packages=setuptools.find_packages(where='src'),
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     install_requires=[
-        'pyserial >= 3.5',
-        'pybluez == 0.22',
-        'prompt_toolkit >= 3.0.29',
+        'bleak >= 0.19.5',
     ]
 )
