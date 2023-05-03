@@ -3,7 +3,7 @@ from setuptools import setup
 
 from pathlib import Path
 this_directory = Path(__file__).parent
-long_description = (this_directory / "README.md").read_text()
+long_description = (this_directory / "README.md").read_text('utf-8')
 
 setup(
     name='CreaTeBME',
@@ -26,7 +26,6 @@ setup(
     packages=setuptools.find_packages(where='src'),
     python_requires='>=3.6',
     install_requires=[
-        'pyserial >= 3.5',
         'bleak >= 0.19.5',
     ]
 )

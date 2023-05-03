@@ -1,20 +1,35 @@
+import warnings
+
 from bleak import BleakClient, BLEDevice
 from typing import Callable, List
 
 _IMU_SERVICE_UUID = '0ddf5c1d-d269-4b17-bd7f-33a8658f0b89'
 _IMU_CHAR_UUID = '64b83770-6b12-4a54-b31a-e007306132bd'
 _SAMPLE_RATE_CHAR_UUID = '3003aac7-d843-4e55-9d89-3f93020cc9ee'
+_VERSION_CHAR_UUID = '2980b86f-dacb-43b9-847c-30c586224943'
 
 
 class ImuSensor:
+    """
+    An interface for the BLE IMU sensors.
+    """
     def __init__(self, device: BLEDevice, callback: Callable[[str, List[float]], None] = None, name: str = None):
+        """
+        Construct an ImuSensor.
+
+        :param device: The BLE device to use as the sensor
+        :param callback: [Optional] A callback to run for each measurement
+        :param name: [Optional] A readable name for the sensor
+        """
         self.__sample_rate_char = None
         self.__imu_char = None
+        self.__version_char = None
         self.__imu_service = None
         self.__sens_acc = 2048
         self.__sens_gyro = 16.4
         self.__callback = callback
         self.__reading = None
+        self.__sample_rate_reserve = None
         self.__name = name if name else device.name[-4:]
 
         # Connect to ble device
@@ -42,7 +57,15 @@ class ImuSensor:
     def __convert_gyro(self, data):
         return data / self.__sens_gyro
 
-    async def connect(self):
+    async def __get_version(self) -> str:
+        version_bytes = await self.__bt_client.read_gatt_char(self.__version_char)
+        version = version_bytes.decode('ascii')
+        return version
+
+    async def connect(self) -> None:
+        """
+        Connect to the BLE device.
+        """
         try:
             await self.__bt_client.connect()
         except Exception as e:
@@ -52,22 +75,63 @@ class ImuSensor:
         self.__imu_service = self.__bt_client.services.get_service(_IMU_SERVICE_UUID)
         self.__imu_char = self.__imu_service.get_characteristic(_IMU_CHAR_UUID)
         self.__sample_rate_char = self.__imu_service.get_characteristic(_SAMPLE_RATE_CHAR_UUID)
+        self.__version_char = self.__imu_service.get_characteristic(_VERSION_CHAR_UUID)
 
-        # # Register callback for notify events
+        # Register callback for notify events
         await self.__bt_client.start_notify(self.__imu_char, self.__receive_reading)
 
-    async def set_sample_rate(self, sample_rate: int):
-        delay_val = int(1/sample_rate*1000)
-        await self.__bt_client.write_gatt_char(
-            self.__sample_rate_char,
-            int.to_bytes(delay_val, 2, "big", signed=False),
-            response=True
+        # Set sample rate if reserve exists
+        if self.__sample_rate_reserve:
+            await self.set_sample_rate(self.__sample_rate_reserve)
+
+    async def set_sample_rate(self, sample_rate: int) -> bool:
+        """
+        Set the sample frequency of the sensor.
+
+        :param sample_rate: The sample frequency
+        :return: Boolean indicating if the sample rate was correctly set
+        """
+        if not self.__bt_client.is_connected:
+            self.__sample_rate_reserve = sample_rate
+        else:
+            await self.__bt_client.write_gatt_char(
+                self.__sample_rate_char,
+                int.to_bytes(sample_rate, 2, "little", signed=False),
+                response=True
+            )
+            actual_freq = await self.get_sample_rate()
+
+            success = actual_freq == sample_rate
+            if not success:
+                warnings.warn(f"Sample rate set to {actual_freq}", RuntimeWarning)
+
+            return success
+
+    async def get_sample_rate(self) -> int:
+        """
+        Read the sample frequency from the sensor.
+
+        :return: The sample frequency
+        """
+        sampling_rate_bytes = await self.__bt_client.read_gatt_char(
+            self.__sample_rate_char
         )
+        return int.from_bytes(sampling_rate_bytes, "little", signed=False)
 
     def get_reading(self) -> List[float]:
+        """
+        Get the last measurement received from the sensor.
+
+        :return: A IMU measurement
+        """
         return self.__reading
 
-    def set_callback(self, callback: Callable[[str, List[float]], None]):
+    def set_callback(self, callback: Callable[[str, List[float]], None]) -> None | TypeError:
+        """
+        Set a callback to be run when a sensor measurement comes in.
+
+        :param callback: A callback function that takes the sensor name and sensor measurement
+        """
         if not callable(callback):
             return TypeError('Callback should be a function')
         self.__callback = callback

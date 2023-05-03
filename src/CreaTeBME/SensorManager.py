@@ -1,27 +1,50 @@
-from threading import Thread
+from threading import Thread, Lock
 import asyncio
 from .connect import connect
-from typing import Callable, List
+from typing import Callable, List, Dict
+import copy
+import time
+import json
 
 
 class SensorManager:
-    def __init__(self, sensor_names: List[str], callback: Callable[[str, List[float]], None], sample_rate: int = 100):
+    """
+    Wrapper class for ImuSensor objects
+    """
+    def __init__(self, sensor_names: List[str], sample_rate: int = 100):
+        """
+        Construct a SensorManager object
+
+        :param sensor_names: List of sensor names
+        :param sample_rate: The
+        """
         self._sensors = []
         self._sample_rate = sample_rate
-        self._stopping = False
         self._thread = None
         self._loop = asyncio.new_event_loop()
+        self._queue = {name: [] for name in sensor_names}
+        self._lock = Lock()
+        self._callback = None
 
         # Connect sensors
         self._loop.run_until_complete(self._create_sensors(sensor_names))
-        self.set_callback(callback)
+        for sensor in self._sensors:
+            sensor.set_callback(self.__receive_reading)
 
     def start(self) -> None:
+        """
+        Start the SensorManager
+        :return:
+        """
         if not self._thread:
             self._thread = Thread(target=self._run)
         self._thread.start()
 
     def stop(self) -> None:
+        """
+        Stop the SensorManager
+        :return:
+        """
         if self._loop.is_running():
             self._loop.stop()
 
@@ -39,17 +62,60 @@ class SensorManager:
     async def _create_sensors(self, sensor_names) -> None:
         self._sensors.extend(await connect(sensor_names))
 
+    def __receive_reading(self, name: str, data: List[float]) -> None:
+        with self._lock:
+            self._queue[name].append(data)
+            if self._callback:
+                self._callback(name, data)
+
     def set_callback(self, callback: Callable[[str, List[float]], None]) -> None:
-        for sensor in self._sensors:
-            sensor.set_callback(callback)
+        """
+        Set a callback to be run when a sensor measurement comes in.
+
+        :param callback: A callback function that takes the sensor name and sensor measurement
+        """
+        self._callback = callback
 
     async def _set_sample_rate(self) -> None:
         for sensor in self._sensors:
             await sensor.set_sample_rate(self._sample_rate)
 
     def set_sample_rate(self, sample_rate: int) -> None:
+        """
+        Set the sample frequency of the sensors.
+
+        :param sample_rate: The sample frequency
+        """
         self._sample_rate = sample_rate
         self._loop.create_task(self._set_sample_rate())
+
+    def get_measurements(self) -> Dict[str, List[List[float]]]:
+        """
+        Get the measurements since the last time this method was called.
+
+        :return: A dictionary containing a list of measurements for each sensor
+        """
+        with self._lock:
+            queue_copy = copy.deepcopy(self._queue)
+            for sensor in self._queue.values():
+                sensor.clear()
+            return queue_copy
+
+    def record(self, filename: str, seconds: int) -> None:
+        """
+        Record the measurements of the sensors and save it to a file.
+
+        :param filename: The name of the recording file to be saved
+        :param seconds: The amount of seconds to record
+        :return:
+        """
+        self.get_measurements()
+        time.sleep(seconds)
+        measurements = self.get_measurements()
+        file_contents = json.dumps({'sample_rate': self._sample_rate, 'data': measurements})
+        with open(filename+'.tb', 'x') as f:
+            f.write(file_contents)
+
 
     def __del__(self):
         self._loop.stop()
