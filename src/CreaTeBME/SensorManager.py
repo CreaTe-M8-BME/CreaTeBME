@@ -17,7 +17,7 @@ class SensorManager:
         Construct a SensorManager object
 
         :param sensor_names: List of sensor names
-        :param sample_rate: The
+        :param sample_rate: The sample frequency
         """
         self._sensors: List[ImuSensor] = []
         self._sample_rate = sample_rate

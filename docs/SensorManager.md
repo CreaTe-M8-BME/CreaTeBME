@@ -37,7 +37,7 @@ Construct a SensorManager object
 **Arguments**:
 
 - `sensor_names`: List of sensor names
-- `sample_rate`: The
+- `sample_rate`: The sample frequency
 
 <a id="CreaTeBME.SensorManager.SensorManager.start"></a>
 
