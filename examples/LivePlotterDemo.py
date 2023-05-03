@@ -90,6 +90,3 @@ manager.start()
 # Register the animation function that will be ran given milliseconds (in this case it depends on the sample_rate)
 ani = animation.FuncAnimation(fig, updateGraph, interval=(1.0 / float(sample_rate)) * 1000)
 plt.show()
-
-# Wait for 1000 seconds and then stop the program, you can quit the program early using the stop button or `ctrl + c`
-time.sleep(1000)
