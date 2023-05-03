@@ -2,6 +2,7 @@ from threading import Thread, Lock
 import asyncio
 from .connect import connect
 from typing import Callable, List, Dict
+from .ImuSensor import ImuSensor
 import copy
 import time
 import json
@@ -18,7 +19,7 @@ class SensorManager:
         :param sensor_names: List of sensor names
         :param sample_rate: The
         """
-        self._sensors = []
+        self._sensors: List[ImuSensor] = []
         self._sample_rate = sample_rate
         self._thread = None
         self._loop = asyncio.new_event_loop()
@@ -36,9 +37,9 @@ class SensorManager:
         Start the SensorManager
         :return:
         """
-        if not self._thread:
+        if not self._loop.is_running():
             self._thread = Thread(target=self._run)
-        self._thread.start()
+            self._thread.start()
 
     def stop(self) -> None:
         """
@@ -47,10 +48,12 @@ class SensorManager:
         """
         if self._loop.is_running():
             self._loop.stop()
+        while self._loop.is_running():
+            continue
+        self._loop.run_until_complete(self._disconnect_sensors())
+        self._clear_queue()
 
     def _run(self) -> None:
-        if not self._loop:
-            self._loop = asyncio.new_event_loop()
         self._loop.create_task(self._connect_sensors())
         self._loop.run_forever()
 
@@ -58,6 +61,10 @@ class SensorManager:
         for sensor in self._sensors:
             await sensor.connect()
         await self._set_sample_rate()
+
+    async def _disconnect_sensors(self) -> None:
+        for sensor in self._sensors:
+            await sensor.disconnect()
 
     async def _create_sensors(self, sensor_names) -> None:
         self._sensors.extend(await connect(sensor_names))
@@ -89,6 +96,10 @@ class SensorManager:
         self._sample_rate = sample_rate
         self._loop.create_task(self._set_sample_rate())
 
+    def _clear_queue(self) -> None:
+        for sensor in self._queue.values():
+            sensor.clear()
+
     def get_measurements(self) -> Dict[str, List[List[float]]]:
         """
         Get the measurements since the last time this method was called.
@@ -97,8 +108,7 @@ class SensorManager:
         """
         with self._lock:
             queue_copy = copy.deepcopy(self._queue)
-            for sensor in self._queue.values():
-                sensor.clear()
+            self._clear_queue()
             return queue_copy
 
     def record(self, filename: str, seconds: int) -> None:
@@ -116,6 +126,5 @@ class SensorManager:
         with open(filename+'.tb', 'x') as f:
             f.write(file_contents)
 
-
     def __del__(self):
-        self._loop.stop()
+        self.stop()

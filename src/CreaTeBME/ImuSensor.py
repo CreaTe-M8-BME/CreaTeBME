@@ -1,4 +1,5 @@
 import warnings
+import asyncio
 
 from bleak import BleakClient, BLEDevice
 from typing import Callable, List, Union
@@ -36,7 +37,7 @@ class ImuSensor:
         self.__bt_client = BleakClient(device)
 
     def __del__(self):
-        self.__bt_client.disconnect()
+        asyncio.run(self.disconnect())
 
     def __receive_reading(self, characteristic, inbytes):
         output = [None] * 6
@@ -83,6 +84,11 @@ class ImuSensor:
         # Set sample rate if reserve exists
         if self.__sample_rate_reserve:
             await self.set_sample_rate(self.__sample_rate_reserve)
+
+    async def disconnect(self) -> None:
+        if self.__bt_client.is_connected:
+            await self.__bt_client.stop_notify(self.__imu_char)
+            await self.__bt_client.disconnect()
 
     async def set_sample_rate(self, sample_rate: int) -> bool:
         """
