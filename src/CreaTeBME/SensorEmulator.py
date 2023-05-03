@@ -24,18 +24,24 @@ class SensorEmulator:
         self._timer = Timer(1/self._sample_rate, self._step)
         self._queue = {name: [] for name in self._data.keys()}
         self._callback = None
+        self._is_running = False
 
     def start(self) -> None:
         """
         Start the SensorEmulator
         """
         self._timer.start()
+        self._is_running = True
 
     def stop(self) -> None:
         """
         Stop the SensorEmulator
         """
         self._timer.cancel()
+        self._is_running = False
+
+    def is_running(self) -> bool:
+        return self._is_running
 
     def get_measurements(self) -> Dict[str, List[List[float]]]:
         """
