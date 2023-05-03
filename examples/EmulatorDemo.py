@@ -9,14 +9,11 @@ import time
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib import style
-import signal
-import sys
 
 # Import the CreaTeBME package after installing it with: `pip install CreaTeBME`
 from CreaTeBME import SensorEmulator
 
 # Constants:
-recording_duration = 10  # The recording duration was set in th RecorderDemo.py, but can also be retrieved from the stored data.
 sample_rate = 100
 axis_names = ["Accelerometer x", "Accelerometer y", "Accelerometer z", "Gyroscope x", "Gyroscope y", "Gyroscope z"]
 axis_colors = ["red", "green", "blue"]
@@ -38,6 +35,7 @@ gyro_data = [[], [], []]
 # Create a sensor emulator which emulates the selected file.
 manager = SensorEmulator('demoRecording')
 manager.set_sample_rate(sample_rate)
+
 
 def updateGraph(i) -> None:
     """
@@ -76,8 +74,9 @@ def updateGraph(i) -> None:
         sub_plots[1].set_ylabel("Rotational velocity in degree/second")
         sub_plots[1].set_title('Gyroscope')
 
+    # Once the emulation is over close the graph
     if not manager.is_running():
-        print("Closing")
+        print("Emulation ended, shutting down...")
         plt.close("all")
 
 
