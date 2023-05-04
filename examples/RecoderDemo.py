@@ -1,7 +1,7 @@
 """
  This demo shows how to record data using the recorder in the sensor manager.
  The recorded data will be saved in a .tb file and can be used to emulate data in via the emulator
- EmulatorDemo.py show how to emulate the data that is recorded in this demo.
+ PlotterDemo.py show how to emulate the data that is recorded in this demo as if it is live data.
 
  Recording and emulating data makes it easier to work with multiple people on a single sensor
  because it makes sure you do not have to connect and move the sensor to test your code.
