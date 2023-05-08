@@ -22,7 +22,8 @@ manager.start()
 while True:
     measurements = manager.get_measurements()
     for sensor, data in measurements.items():
-        print(sensor, len(data))
+        if len(data) > 0:
+            print(sensor, data)
 
 # Stop the sensor manager
 manager.stop()
