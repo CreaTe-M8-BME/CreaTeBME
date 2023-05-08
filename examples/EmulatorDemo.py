@@ -8,7 +8,6 @@ from CreaTeBME import SensorManager, SensorEmulator
 
 # Options
 live_data_mode = False
-repeat_recording = False
 recording_file = 'demoRecording'
 sample_rate = 100
 
@@ -32,13 +31,8 @@ def loopFunc():
                 print(sensor, data)
                 # Once the emulation is over close the graph.
             if not manager.is_running():
-                print(f"Emulation ended, {'restarting..' if repeat_recording else 'shutting down...'}")
-                if repeat_recording and not live_data_mode:
-                    manager.stop()
-                    manager = SensorEmulator(recording_file)
-                    manager.start()
-                else:
-                    return
+                print(f"Emulation ended, shutting down...")
+                return
 
 
 loopFunc()
