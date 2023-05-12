@@ -1,6 +1,8 @@
-# Table of Contents
+# API Reference
 
-* [CreaTeBME.SensorManager](./SensorManager.md)
-* [CreaTeBME.SensorEmulator](./SensorEmulator.md)
-* [CreaTeBME.ImuSensor](./ImuSensor.md)
-* [CreaTeBME.connect](./connect.md)
+## Table of Contents
+
+* [CreaTeBME.SensorManager](./modules/SensorManager.md)
+* [CreaTeBME.SensorEmulator](./modules/SensorEmulator.md)
+* [CreaTeBME.ImuSensor](./modules/ImuSensor.md)
+* [CreaTeBME.connect](./modules/connect.md)

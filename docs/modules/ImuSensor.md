@@ -1,19 +1,21 @@
-# Table of Contents
+# ImuSensor
 
-* [CreaTeBME.ImuSensor](#CreaTeBME.ImuSensor)
-  * [ImuSensor](#CreaTeBME.ImuSensor.ImuSensor)
-    * [\_\_init\_\_](#CreaTeBME.ImuSensor.ImuSensor.__init__)
-    * [connect](#CreaTeBME.ImuSensor.ImuSensor.connect)
-    * [set\_sample\_rate](#CreaTeBME.ImuSensor.ImuSensor.set_sample_rate)
-    * [get\_sample\_rate](#CreaTeBME.ImuSensor.ImuSensor.get_sample_rate)
-    * [get\_reading](#CreaTeBME.ImuSensor.ImuSensor.get_reading)
-    * [set\_callback](#CreaTeBME.ImuSensor.ImuSensor.set_callback)
+## Table of Contents
 
-<a id="CreaTeBME.ImuSensor"></a>
+* [ImuSensor](#ImuSensor)
+  * [ImuSensor](#ImuSensor.ImuSensor)
+    * [\_\_init\_\_](#ImuSensor.ImuSensor.__init__)
+    * [connect](#ImuSensor.ImuSensor.connect)
+    * [set\_sample\_rate](#ImuSensor.ImuSensor.set_sample_rate)
+    * [get\_sample\_rate](#ImuSensor.ImuSensor.get_sample_rate)
+    * [get\_reading](#ImuSensor.ImuSensor.get_reading)
+    * [set\_callback](#ImuSensor.ImuSensor.set_callback)
 
-# CreaTeBME.ImuSensor
+<a id="ImuSensor"></a>
 
-<a id="CreaTeBME.ImuSensor.ImuSensor"></a>
+# ImuSensor
+
+<a id="ImuSensor.ImuSensor"></a>
 
 ## ImuSensor Objects
 
@@ -23,7 +25,7 @@ class ImuSensor()
 
 An interface for the BLE IMU sensors.
 
-<a id="CreaTeBME.ImuSensor.ImuSensor.__init__"></a>
+<a id="ImuSensor.ImuSensor.__init__"></a>
 
 #### \_\_init\_\_
 
@@ -41,7 +43,7 @@ Construct an ImuSensor.
 - `callback`: [Optional] A callback to run for each measurement
 - `name`: [Optional] A readable name for the sensor
 
-<a id="CreaTeBME.ImuSensor.ImuSensor.connect"></a>
+<a id="ImuSensor.ImuSensor.connect"></a>
 
 #### connect
 
@@ -51,7 +53,7 @@ async def connect() -> None
 
 Connect to the BLE device.
 
-<a id="CreaTeBME.ImuSensor.ImuSensor.set_sample_rate"></a>
+<a id="ImuSensor.ImuSensor.set_sample_rate"></a>
 
 #### set\_sample\_rate
 
@@ -69,7 +71,7 @@ Set the sample frequency of the sensor.
 
 Boolean indicating if the sample rate was correctly set
 
-<a id="CreaTeBME.ImuSensor.ImuSensor.get_sample_rate"></a>
+<a id="ImuSensor.ImuSensor.get_sample_rate"></a>
 
 #### get\_sample\_rate
 
@@ -83,7 +85,7 @@ Read the sample frequency from the sensor.
 
 The sample frequency
 
-<a id="CreaTeBME.ImuSensor.ImuSensor.get_reading"></a>
+<a id="ImuSensor.ImuSensor.get_reading"></a>
 
 #### get\_reading
 
@@ -97,13 +99,14 @@ Get the last measurement received from the sensor.
 
 A IMU measurement
 
-<a id="CreaTeBME.ImuSensor.ImuSensor.set_callback"></a>
+<a id="ImuSensor.ImuSensor.set_callback"></a>
 
 #### set\_callback
 
 ```python
 def set_callback(
-        callback: Callable[[str, List[float]], None]) -> None | TypeError
+        callback: Callable[[str, List[float]],
+                           None]) -> Union[None, TypeError]
 ```
 
 Set a callback to be run when a sensor measurement comes in.
