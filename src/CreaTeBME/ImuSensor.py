@@ -1,3 +1,4 @@
+import time
 import warnings
 import asyncio
 
@@ -28,12 +29,14 @@ class ImuSensor:
         self.__reading = None
         self.__sample_rate_reserve = None
         self.__name = name if name else device.name[-4:]
+        self._is_running = False
 
         # Connect to ble device
         self.__bt_client = BleakClient(device)
 
     def __del__(self):
-        asyncio.run(self.disconnect())
+        if self.__bt_client.is_connected:
+            asyncio.run(self.disconnect())
 
     def __receive_reading(self, characteristic, inbytes):
         output = [None] * 6
