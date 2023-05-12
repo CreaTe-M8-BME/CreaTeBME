@@ -42,6 +42,10 @@ class SensorEmulator:
         self._is_running = False
 
     def is_running(self) -> bool:
+        """
+        Check whether the SensorEmulator is running.
+        :return: Boolean representing the running state of the SensorEmulator.
+        """
         return self._is_running
 
     def get_measurements(self) -> Dict[str, List[List[float]]]:
