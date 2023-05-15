@@ -57,6 +57,10 @@ class SensorManager:
         self._is_running = False
 
     def is_running(self) -> bool:
+        """
+        Check whether the SensorManager is running.
+        :return: Boolean representing the running state of the SensorManager.
+        """
         return self._is_running
 
     def _run(self) -> None:
