@@ -2,8 +2,10 @@ name: Build and Release Python Package
 
 on:
   push:
+    branches:
+      - main
     tags:
-      - '*'
+      - v*.*.*
   pull_request:
 
 jobs:
