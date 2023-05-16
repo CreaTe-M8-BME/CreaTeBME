@@ -7,6 +7,7 @@
     * [\_\_init\_\_](#SensorManager.SensorManager.__init__)
     * [start](#SensorManager.SensorManager.start)
     * [stop](#SensorManager.SensorManager.stop)
+    * [is\_running](#SensorManager.SensorManager.is_running)
     * [set\_callback](#SensorManager.SensorManager.set_callback)
     * [set\_sample\_rate](#SensorManager.SensorManager.set_sample_rate)
     * [get\_measurements](#SensorManager.SensorManager.get_measurements)
@@ -62,6 +63,20 @@ def stop() -> None
 
 Stop the SensorManager
 
+
+<a id="SensorManager.SensorManager.is_running"></a>
+
+#### is\_running
+
+```python
+def is_running() -> bool
+```
+
+Check whether the SensorManager is running.
+
+**Returns**:
+
+Boolean representing the running state of the SensorManager.
 
 <a id="SensorManager.SensorManager.set_callback"></a>
 
