@@ -7,6 +7,7 @@
     * [\_\_init\_\_](#SensorEmulator.SensorEmulator.__init__)
     * [start](#SensorEmulator.SensorEmulator.start)
     * [stop](#SensorEmulator.SensorEmulator.stop)
+    * [is\_running](#SensorEmulator.SensorEmulator.is_running)
     * [get\_measurements](#SensorEmulator.SensorEmulator.get_measurements)
     * [set\_callback](#SensorEmulator.SensorEmulator.set_callback)
     * [set\_sample\_rate](#SensorEmulator.SensorEmulator.set_sample_rate)
@@ -59,6 +60,20 @@ def stop() -> None
 ```
 
 Stop the SensorEmulator
+
+<a id="SensorEmulator.SensorEmulator.is_running"></a>
+
+#### is\_running
+
+```python
+def is_running() -> bool
+```
+
+Check whether the SensorEmulator is running.
+
+**Returns**:
+
+Boolean representing the running state of the SensorEmulator.
 
 <a id="SensorEmulator.SensorEmulator.get_measurements"></a>
 
