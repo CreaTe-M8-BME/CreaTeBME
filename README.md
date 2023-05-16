@@ -91,4 +91,4 @@ async def connect():
 
 # API reference
 
-For the API reference look [here](https://github.com/CreaTe-M8-BME/CreaTeBME/blob/main/docs/api.md)
+For the API reference look [here](https://github.com/CreaTe-M8-BME/CreaTeBME/blob/main/docs/README.md)
