@@ -1,13 +1,10 @@
+import time
 import warnings
 import asyncio
 
 from bleak import BleakClient, BLEDevice
 from typing import Callable, List, Union
-
-_IMU_SERVICE_UUID = '0ddf5c1d-d269-4b17-bd7f-33a8658f0b89'
-_IMU_CHAR_UUID = '64b83770-6b12-4a54-b31a-e007306132bd'
-_SAMPLE_RATE_CHAR_UUID = '3003aac7-d843-4e55-9d89-3f93020cc9ee'
-_VERSION_CHAR_UUID = '2980b86f-dacb-43b9-847c-30c586224943'
+from .uuids import IMU_SERVICE_UUID, IMU_CHAR_UUID, SAMPLE_RATE_CHAR_UUID, VERSION_CHAR_UUID
 
 
 class ImuSensor:
@@ -32,12 +29,14 @@ class ImuSensor:
         self.__reading = None
         self.__sample_rate_reserve = None
         self.__name = name if name else device.name[-4:]
+        self._is_running = False
 
         # Connect to ble device
         self.__bt_client = BleakClient(device)
 
     def __del__(self):
-        asyncio.run(self.disconnect())
+        if self.__bt_client.is_connected:
+            asyncio.run(self.disconnect())
 
     def __receive_reading(self, characteristic, inbytes):
         output = [None] * 6
@@ -73,10 +72,10 @@ class ImuSensor:
             raise RuntimeError('Could not connect to sensor: ', e)
 
         # Read and store services and characteristics
-        self.__imu_service = self.__bt_client.services.get_service(_IMU_SERVICE_UUID)
-        self.__imu_char = self.__imu_service.get_characteristic(_IMU_CHAR_UUID)
-        self.__sample_rate_char = self.__imu_service.get_characteristic(_SAMPLE_RATE_CHAR_UUID)
-        self.__version_char = self.__imu_service.get_characteristic(_VERSION_CHAR_UUID)
+        self.__imu_service = self.__bt_client.services.get_service(IMU_SERVICE_UUID)
+        self.__imu_char = self.__imu_service.get_characteristic(IMU_CHAR_UUID)
+        self.__sample_rate_char = self.__imu_service.get_characteristic(SAMPLE_RATE_CHAR_UUID)
+        self.__version_char = self.__imu_service.get_characteristic(VERSION_CHAR_UUID)
 
         # Register callback for notify events
         await self.__bt_client.start_notify(self.__imu_char, self.__receive_reading)

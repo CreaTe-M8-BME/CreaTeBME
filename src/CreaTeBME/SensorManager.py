@@ -1,4 +1,5 @@
 from threading import Thread, Lock
+import atexit
 import asyncio
 from .connect import connect
 from typing import Callable, List, Dict
@@ -26,12 +27,14 @@ class SensorManager:
         self._queue = {name: [] for name in sensor_names}
         self._lock = Lock()
         self._callback = None
+        self._is_running = False
+
+        atexit.register(self.__del__)
 
         # Connect sensors
         self._loop.run_until_complete(self._create_sensors(sensor_names))
         for sensor in self._sensors:
             sensor.set_callback(self.__receive_reading)
-        self._is_running = False
 
     def start(self) -> None:
         """
@@ -40,6 +43,7 @@ class SensorManager:
         """
         if not self._loop.is_running():
             self._thread = Thread(target=self._run)
+            self._thread.daemon = True
             self._thread.start()
         self._is_running = True
 
@@ -48,6 +52,8 @@ class SensorManager:
         Stop the SensorManager
         :return:
         """
+        if not self.is_running():
+            return
         if self._loop.is_running():
             self._loop.stop()
         while self._loop.is_running():
@@ -138,3 +144,4 @@ class SensorManager:
 
     def __del__(self):
         self.stop()
+
