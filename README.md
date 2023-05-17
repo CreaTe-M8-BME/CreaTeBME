@@ -1,5 +1,6 @@
 # CreaTeBME
 
+[![Build](https://github.com/CreaTe-M8-BME/CreaTeBME/actions/workflows/build_publish.yml/badge.svg)](https://github.com/CreaTe-M8-BME/CreaTeBME/actions/workflows/build_publish.yml)
 [![PyPI](https://img.shields.io/pypi/v/CreaTeBME)](https://pypi.org/project/CreaTeBME/)
 
 Python Package for interfacing the bluetooth IMU module for CreaTe M8 BME.
