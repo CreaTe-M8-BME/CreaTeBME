@@ -1,13 +1,15 @@
-# Table of Contents
+# connect
 
-* [CreaTeBME.connect](#CreaTeBME.connect)
-  * [connect](#CreaTeBME.connect.connect)
+## Table of Contents
 
-<a id="CreaTeBME.connect"></a>
+* [connect](#connect)
+  * [connect](#connect.connect)
 
-# CreaTeBME.connect
+<a id="connect"></a>
 
-<a id="CreaTeBME.connect.connect"></a>
+# connect
+
+<a id="connect.connect"></a>
 
 #### connect
 

@@ -1,20 +1,23 @@
-# Table of Contents
+# SensorManager
 
-* [CreaTeBME.SensorManager](#CreaTeBME.SensorManager)
-  * [SensorManager](#CreaTeBME.SensorManager.SensorManager)
-    * [\_\_init\_\_](#CreaTeBME.SensorManager.SensorManager.__init__)
-    * [start](#CreaTeBME.SensorManager.SensorManager.start)
-    * [stop](#CreaTeBME.SensorManager.SensorManager.stop)
-    * [set\_callback](#CreaTeBME.SensorManager.SensorManager.set_callback)
-    * [set\_sample\_rate](#CreaTeBME.SensorManager.SensorManager.set_sample_rate)
-    * [get\_measurements](#CreaTeBME.SensorManager.SensorManager.get_measurements)
-    * [record](#CreaTeBME.SensorManager.SensorManager.record)
+## Table of Contents
 
-<a id="CreaTeBME.SensorManager"></a>
+* [SensorManager](#SensorManager)
+  * [SensorManager](#SensorManager.SensorManager)
+    * [\_\_init\_\_](#SensorManager.SensorManager.__init__)
+    * [start](#SensorManager.SensorManager.start)
+    * [stop](#SensorManager.SensorManager.stop)
+    * [is\_running](#SensorManager.SensorManager.is_running)
+    * [set\_callback](#SensorManager.SensorManager.set_callback)
+    * [set\_sample\_rate](#SensorManager.SensorManager.set_sample_rate)
+    * [get\_measurements](#SensorManager.SensorManager.get_measurements)
+    * [record](#SensorManager.SensorManager.record)
 
-# CreaTeBME.SensorManager
+<a id="SensorManager"></a>
 
-<a id="CreaTeBME.SensorManager.SensorManager"></a>
+# SensorManager
+
+<a id="SensorManager.SensorManager"></a>
 
 ## SensorManager Objects
 
@@ -24,7 +27,7 @@ class SensorManager()
 
 Wrapper class for ImuSensor objects
 
-<a id="CreaTeBME.SensorManager.SensorManager.__init__"></a>
+<a id="SensorManager.SensorManager.__init__"></a>
 
 #### \_\_init\_\_
 
@@ -37,9 +40,9 @@ Construct a SensorManager object
 **Arguments**:
 
 - `sensor_names`: List of sensor names
-- `sample_rate`: The
+- `sample_rate`: The sample frequency
 
-<a id="CreaTeBME.SensorManager.SensorManager.start"></a>
+<a id="SensorManager.SensorManager.start"></a>
 
 #### start
 
@@ -50,7 +53,7 @@ def start() -> None
 Start the SensorManager
 
 
-<a id="CreaTeBME.SensorManager.SensorManager.stop"></a>
+<a id="SensorManager.SensorManager.stop"></a>
 
 #### stop
 
@@ -61,7 +64,21 @@ def stop() -> None
 Stop the SensorManager
 
 
-<a id="CreaTeBME.SensorManager.SensorManager.set_callback"></a>
+<a id="SensorManager.SensorManager.is_running"></a>
+
+#### is\_running
+
+```python
+def is_running() -> bool
+```
+
+Check whether the SensorManager is running.
+
+**Returns**:
+
+Boolean representing the running state of the SensorManager.
+
+<a id="SensorManager.SensorManager.set_callback"></a>
 
 #### set\_callback
 
@@ -75,7 +92,7 @@ Set a callback to be run when a sensor measurement comes in.
 
 - `callback`: A callback function that takes the sensor name and sensor measurement
 
-<a id="CreaTeBME.SensorManager.SensorManager.set_sample_rate"></a>
+<a id="SensorManager.SensorManager.set_sample_rate"></a>
 
 #### set\_sample\_rate
 
@@ -89,7 +106,7 @@ Set the sample frequency of the sensors.
 
 - `sample_rate`: The sample frequency
 
-<a id="CreaTeBME.SensorManager.SensorManager.get_measurements"></a>
+<a id="SensorManager.SensorManager.get_measurements"></a>
 
 #### get\_measurements
 
@@ -103,7 +120,7 @@ Get the measurements since the last time this method was called.
 
 A dictionary containing a list of measurements for each sensor
 
-<a id="CreaTeBME.SensorManager.SensorManager.record"></a>
+<a id="SensorManager.SensorManager.record"></a>
 
 #### record
 

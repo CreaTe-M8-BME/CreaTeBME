@@ -21,7 +21,7 @@ class SensorEmulator:
         self._sample_rate: int = text_data['sample_rate']
         self._data: Dict[str, List[float]] = text_data['data']
         self._lock = Lock()
-        self._timer = Timer(1/self._sample_rate, self._step)
+        self._timer = None
         self._queue = {name: [] for name in self._data.keys()}
         self._callback = None
         self._is_running = False
@@ -30,6 +30,7 @@ class SensorEmulator:
         """
         Start the SensorEmulator
         """
+        self._timer = Timer(1/self._sample_rate, self._step)
         self._timer.start()
         self._is_running = True
 
@@ -41,6 +42,10 @@ class SensorEmulator:
         self._is_running = False
 
     def is_running(self) -> bool:
+        """
+        Check whether the SensorEmulator is running.
+        :return: Boolean representing the running state of the SensorEmulator.
+        """
         return self._is_running
 
     def get_measurements(self) -> Dict[str, List[List[float]]]:

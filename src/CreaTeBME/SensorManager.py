@@ -1,4 +1,5 @@
 from threading import Thread, Lock
+import atexit
 import asyncio
 from .connect import connect
 from typing import Callable, List, Dict
@@ -17,7 +18,7 @@ class SensorManager:
         Construct a SensorManager object
 
         :param sensor_names: List of sensor names
-        :param sample_rate: The
+        :param sample_rate: The sample frequency
         """
         self._sensors: List[ImuSensor] = []
         self._sample_rate = sample_rate
@@ -26,12 +27,14 @@ class SensorManager:
         self._queue = {name: [] for name in sensor_names}
         self._lock = Lock()
         self._callback = None
+        self._is_running = False
+
+        atexit.register(self.__del__)
 
         # Connect sensors
         self._loop.run_until_complete(self._create_sensors(sensor_names))
         for sensor in self._sensors:
             sensor.set_callback(self.__receive_reading)
-        self._is_running = False
 
     def start(self) -> None:
         """
@@ -40,6 +43,7 @@ class SensorManager:
         """
         if not self._loop.is_running():
             self._thread = Thread(target=self._run)
+            self._thread.daemon = True
             self._thread.start()
         self._is_running = True
 
@@ -48,6 +52,8 @@ class SensorManager:
         Stop the SensorManager
         :return:
         """
+        if not self.is_running():
+            return
         if self._loop.is_running():
             self._loop.stop()
         while self._loop.is_running():
@@ -57,6 +63,10 @@ class SensorManager:
         self._is_running = False
 
     def is_running(self) -> bool:
+        """
+        Check whether the SensorManager is running.
+        :return: Boolean representing the running state of the SensorManager.
+        """
         return self._is_running
 
     def _run(self) -> None:
@@ -134,3 +144,4 @@ class SensorManager:
 
     def __del__(self):
         self.stop()
+

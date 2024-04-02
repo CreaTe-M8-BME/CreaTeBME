@@ -1,4 +1,8 @@
 # CreaTeBME
+
+[![Build](https://github.com/CreaTe-M8-BME/CreaTeBME/actions/workflows/build_publish.yml/badge.svg)](https://github.com/CreaTe-M8-BME/CreaTeBME/actions/workflows/build_publish.yml)
+[![PyPI](https://img.shields.io/pypi/v/CreaTeBME)](https://pypi.org/project/CreaTeBME/)
+
 Python Package for interfacing the bluetooth IMU module for CreaTe M8 BME.
 
 # Installation
@@ -22,7 +26,8 @@ manager.start()
 while True:
     measurements = manager.get_measurements()
     for sensor, data in measurements.items():
-        print(sensor, len(data))
+        if len(data) > 0:
+            print(sensor, data)
 
 # Stop the sensor manager
 manager.stop()
@@ -87,4 +92,4 @@ async def connect():
 
 # API reference
 
-For the API reference look [here](./docs/api.md)
+For the API reference look [here](https://github.com/CreaTe-M8-BME/CreaTeBME/blob/main/docs/README.md)
