@@ -11,11 +11,11 @@
 from CreaTeBME import SensorManager
 
 # Constants:
-sample_rate = 100
+SAMPLE_RATE = 100
 
 # Create a sensor manager for the given sensor names using the given callback
 manager = SensorManager(['68FE'])  # Change the 68FE to the code of your sensor!!
-manager.set_sample_rate(sample_rate)
+manager.set_sample_rate(SAMPLE_RATE)
 manager.start()
 
 # Create a recording for 10 seconds and save it in a new file called demoRecording.
