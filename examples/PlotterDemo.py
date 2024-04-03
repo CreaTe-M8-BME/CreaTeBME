@@ -7,12 +7,16 @@
  This Demo will show the ease of swapping between live and recorded data.
 
  If you didn't already record a sensor with the RecorderDemo.py yet, do that first because that data is needed for this demo.
+
+ Steps to run this demo:
+    1. Change `USE_RECORDED_DATA` to `True` to use recorded data or `False` to use live data.
+        1.1. If you want to use recorded data, make sure you have recorded data using the RecorderDemo.py.
+    2. Change the `SensorNames` to the name of the sensor you want to use.
 """
 import signal
 import sys
-import time
-import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import style
 
@@ -20,10 +24,10 @@ from matplotlib import style
 from CreaTeBME import SensorEmulator, SensorManager
 
 # Change this to be either using live data or emulate it using the recorded file.
-LIVE_DATA_MODE = False
+USE_RECORDED_DATA = False
 REPEAT_RECORDING = True
 RECORDING_FILE = 'demoRecording'
-SENSORS_NAMES = ['68FE']  # Change 68FE to your sensor name,
+SENSORS_NAMES = ['0FD6']  # Change 0FD6 to your sensor name,
 
 # Constants:
 SAMPLE_RATE = 100
@@ -36,7 +40,7 @@ axis_colors = ["red", "green", "blue"]
 style.use('ggplot')
 
 # Create sub plots for accelerometer data and gyroscope.
-title = f"BME IMU {'live' if LIVE_DATA_MODE else 'recorded'} data plotter demo"
+title = f"BME IMU {'recorded' if USE_RECORDED_DATA else 'live'} data plotter demo"
 fig, sub_plots = plt.subplots(len(SENSORS_NAMES), 2, num=title)
 fig.set_tight_layout(True)
 fig.suptitle(title, fontsize=16)
@@ -47,7 +51,7 @@ accelerometer_data = {sensor_name: np.array([[0, 0, 0]]) for sensor_name in SENS
 gyro_data = {sensor_name: np.array([[0, 0, 0]]) for sensor_name in SENSORS_NAMES}
 
 # Create either a sensor manager or a sensor emulator depending if live data is needed
-manager = SensorManager(SENSORS_NAMES) if LIVE_DATA_MODE else SensorEmulator(RECORDING_FILE)
+manager = SensorEmulator(RECORDING_FILE) if USE_RECORDED_DATA else SensorManager(SENSORS_NAMES)
 manager.set_sample_rate(SAMPLE_RATE)
 
 
@@ -60,7 +64,7 @@ def updateGraph(i) -> None:
     for sensor, data in measurements.items():
         if len(data) == 0: continue
         for data_point in data:
-            # Calculate the new time, which is the old one (0 if there isn't an old one) plus the step between each sample (one over the sample rate)
+            # Calculate the new time, which is the old one plus the step between each sample (one over the sample rate)
             # time_data[sensor][-BUFFER_SIZE:] retrieves the last BUFFER_SIZE (5 seconds) of timestamps from the sensor
             new_timestamp = time_data[sensor][-1] + 1.0 / float(SAMPLE_RATE)
             time_data[sensor] = np.append(time_data[sensor][-BUFFER_SIZE:], new_timestamp)
@@ -69,7 +73,7 @@ def updateGraph(i) -> None:
             accelerometer_data[sensor] = np.vstack((accelerometer_data[sensor][-BUFFER_SIZE:], data_point[:3]))
             gyro_data[sensor] = np.vstack((gyro_data[sensor][-BUFFER_SIZE:], data_point[3:]))
 
-        # If only multiple sensors are selected, then select the right row, otherwise use the sub_plots
+        # If multiple sensors are connected, then select the correct row, otherwise use the sub_plots
         row_plot = sub_plots[SENSORS_NAMES.index(sensor)] if len(SENSORS_NAMES) > 1 else sub_plots
 
         # Update the graph to show the new measurements
@@ -80,7 +84,7 @@ def updateGraph(i) -> None:
         row_plot[0].legend(loc='upper right')
         row_plot[1].legend(loc='upper right')
 
-        # Update the titles
+        # Update the graph titles
         row_plot[0].set_ylabel("Acceleration in g (9.81 m/s^2)", fontsize=8)
         row_plot[0].set_title('Accelerometer', fontsize=12)
         row_plot[1].set_ylabel("Rotational velocity in degree/second", fontsize=8)
@@ -89,7 +93,7 @@ def updateGraph(i) -> None:
     # Once the emulation is over close the graph.
     if not manager.is_running():
         print(f"Emulation ended, {'restarting..' if REPEAT_RECORDING else 'shutting down...'}")
-        if REPEAT_RECORDING and not LIVE_DATA_MODE:
+        if REPEAT_RECORDING and USE_RECORDED_DATA:
             manager.stop()
             manager = SensorEmulator(RECORDING_FILE)
             manager.start()
@@ -97,8 +101,7 @@ def updateGraph(i) -> None:
             plt.close("all")
 
 
-# This program does not end on it's own, so the user needs to force exit it.
-# When they do so the stop function on the manager is called to neatly close the program.
+# When the user closes the program using CTRL+C or the stop button, then close the connection and exit the program
 def user_exit(sig, frame):
     print('closing connection...')
     manager.stop()
@@ -112,7 +115,8 @@ signal.signal(signal.SIGINT, user_exit)
 manager.start()
 
 # Register the animation function that will be ran given milliseconds (in this case it depends on the sample_rate)
-ani = animation.FuncAnimation(fig, updateGraph, interval=(1.0 / float(SAMPLE_RATE)) * 1000)
+animatedFunction = animation.FuncAnimation(fig, updateGraph, interval=(1.0 / float(SAMPLE_RATE)) * 1000)
 plt.show()
 
+# Stop the sensor manager
 manager.stop()
