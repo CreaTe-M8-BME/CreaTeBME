@@ -48,6 +48,10 @@ from CreaTeBME import SensorManager
 
 manager = SensorManager(['A1B2', 'C3D4'])
 ```
+Then start reading data from the sensors by calling the `start` method of the `SensorManager`.
+```python
+manager.start()
+```
 
 To get the IMU measurements the `get_measurements()' method can be used.
 This returns the measurements received since the last time this method was called.
@@ -61,12 +65,7 @@ The measurements are structured like this
 - **[0:2]** = x,y,z of accelerometer in (g).
 - **[3:5]** = x,y,z of gyroscope in (deg/s).
 
-To start reading data from the sensors call the `start` method of the `SensorManager`.
-```python
-manager.start()
-```
-
-Make sure to also call the `stop` method when exiting your program.
+Finally, make sure to also call the `stop` method when exiting your program.
 ```python
 manager.stop()
 ```
