@@ -6,15 +6,16 @@
 Python Package for interfacing the bluetooth IMU module for CreaTe M8 BME.
 
 # Installation
-To install the latest stable version simply run
+To install the latest stable version simply run it in your terminal.
+If you are using pycharm then you can open the terminal on the bottom left of the screen.
 ```shell
 pip install CreaTeBME
 ```
 
 # Example
 A simple example to connect to a sensor and read and print the data for 10 seconds.
+The package automatically connects to the device, so you do not have to connect to it manually.
 ```python
-import time
 from CreaTeBME import SensorManager
 
 # Create a sensor manager for the given sensor names using the given callback
