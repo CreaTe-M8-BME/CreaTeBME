@@ -6,6 +6,7 @@
   * [ImuSensor](#ImuSensor.ImuSensor)
     * [\_\_init\_\_](#ImuSensor.ImuSensor.__init__)
     * [connect](#ImuSensor.ImuSensor.connect)
+    * [disconnect](#ImuSensor.ImuSensor.disconnect)
     * [set\_sample\_rate](#ImuSensor.ImuSensor.set_sample_rate)
     * [get\_sample\_rate](#ImuSensor.ImuSensor.get_sample_rate)
     * [get\_reading](#ImuSensor.ImuSensor.get_reading)
@@ -52,6 +53,16 @@ async def connect() -> None
 ```
 
 Connect to the BLE device.
+
+<a id="ImuSensor.ImuSensor.disconnect"></a>
+
+#### disconnect
+
+```python
+async def disconnect() -> None
+```
+
+Disconnect the BLE device.
 
 <a id="ImuSensor.ImuSensor.set_sample_rate"></a>
 
