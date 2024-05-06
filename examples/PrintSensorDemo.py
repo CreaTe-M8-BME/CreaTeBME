@@ -3,6 +3,7 @@ from CreaTeBME import SensorManager
 
 # Create a sensor manager for the given sensor names using the given callback
 manager = SensorManager(['0BE6'])  # Change 0BE6 to your sensor name. Sensor names do not have an O, only zeros (0)
+manager.set_sample_rate(120)
 
 # Start the sensor manager
 manager.start()
