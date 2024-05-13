@@ -26,6 +26,6 @@ setup(
     packages=setuptools.find_packages(where='src'),
     python_requires='>=3.7',
     install_requires=[
-        'bleak >= 0.22.0',
+        'bleak >= 0.22.1',
     ]
 )
