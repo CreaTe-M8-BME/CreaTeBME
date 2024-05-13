@@ -85,6 +85,9 @@ class ImuSensor:
             await self.set_sample_rate(self.__sample_rate_reserve)
 
     async def disconnect(self) -> None:
+        """
+        Disconnect the BLE device.
+        """
         if self.__bt_client.is_connected:
             await self.__bt_client.stop_notify(self.__imu_char)
             await self.__bt_client.disconnect()
