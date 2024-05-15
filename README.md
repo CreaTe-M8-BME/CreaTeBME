@@ -13,7 +13,7 @@ pip install CreaTeBME
 ```
 
 # Example
-A simple example to connect to a sensor and read and print the data for 10 seconds.
+A simple example to connect to a sensor and read and print the data indefinitely.
 The package automatically connects to the device, so you do not have to connect to it manually.
 ```python
 from CreaTeBME import SensorManager
@@ -69,6 +69,7 @@ Finally, make sure to also call the `stop` method when exiting your program.
 ```python
 manager.stop()
 ```
+
 ## Manual Connection
 ⚠️**Understanding of** asyncio **required**⚠️
 
