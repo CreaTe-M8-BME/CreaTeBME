@@ -13,11 +13,19 @@
         1.1. If you want to use recorded data, make sure you have recorded data using the RecorderDemo.py.
     2. Change the `SensorNames` to the name of the sensor you want to use.
 """
-import signal
-import sys
+
+# Prevent PyCharm from taking over control of the plot window backend
+import os
+import matplotlib
+if os.name == 'posix':
+    matplotlib.use("macosx")
+else:
+    matplotlib.use("tkagg")
+
+# Import the necessary libraries
+import numpy as np
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
-import numpy as np
 from matplotlib import style
 
 # Import the CreaTeBME package after installing it with: `pip install CreaTeBME`
@@ -27,14 +35,17 @@ from CreaTeBME import SensorEmulator, SensorManager
 USE_RECORDED_DATA = False
 REPEAT_RECORDING = True
 RECORDING_FILE = 'demoRecording'
-SENSORS_NAMES = ['0FD6']  # Change 0FD6 to your sensor name,
+SENSORS_NAMES = ['0BE6']  # Change 0FD6 to your sensor name,
 
 # Constants:
 SAMPLE_RATE = 100
 STORED_SECONDS = 5
 BUFFER_SIZE = SAMPLE_RATE * STORED_SECONDS
-axis_names = ["Accelerometer x", "Accelerometer y", "Accelerometer z", "Gyroscope x", "Gyroscope y", "Gyroscope z"]
-axis_colors = ["red", "green", "blue"]
+AXIS_NAMES = ["Accelerometer x", "Accelerometer y", "Accelerometer z", "Gyroscope x", "Gyroscope y", "Gyroscope z"]
+
+# Create either a sensor manager or a sensor emulator depending if live data is needed
+manager = SensorEmulator(RECORDING_FILE) if USE_RECORDED_DATA else SensorManager(SENSORS_NAMES)
+manager.set_sample_rate(SAMPLE_RATE)
 
 # Style the graph (optional)
 style.use('ggplot')
@@ -50,12 +61,8 @@ time_data = {name: np.array([0.]) for name in SENSORS_NAMES}
 accelerometer_data = {sensor_name: np.array([[0, 0, 0]]) for sensor_name in SENSORS_NAMES}
 gyro_data = {sensor_name: np.array([[0, 0, 0]]) for sensor_name in SENSORS_NAMES}
 
-# Create either a sensor manager or a sensor emulator depending if live data is needed
-manager = SensorEmulator(RECORDING_FILE) if USE_RECORDED_DATA else SensorManager(SENSORS_NAMES)
-manager.set_sample_rate(SAMPLE_RATE)
 
-
-def updateGraph(i) -> None:
+def update_graph(i) -> None:
     """
     UpdateGraph updates the graph with the new measurements to show the live data
     """
@@ -79,8 +86,8 @@ def updateGraph(i) -> None:
         # Update the graph to show the new measurements
         row_plot[0].clear()
         row_plot[1].clear()
-        row_plot[0].plot(time_data[sensor], accelerometer_data[sensor], label=axis_names[:3])
-        row_plot[1].plot(time_data[sensor], gyro_data[sensor], label=axis_names[3:])
+        row_plot[0].plot(time_data[sensor], accelerometer_data[sensor], label=AXIS_NAMES[:3])
+        row_plot[1].plot(time_data[sensor], gyro_data[sensor], label=AXIS_NAMES[3:])
         row_plot[0].legend(loc='upper right')
         row_plot[1].legend(loc='upper right')
 
@@ -101,21 +108,11 @@ def updateGraph(i) -> None:
             plt.close("all")
 
 
-# When the user closes the program using CTRL+C or the stop button, then close the connection and exit the program
-def user_exit(sig, frame):
-    print('closing connection...')
-    manager.stop()
-    sys.exit(0)
-
-
-# Register the signal
-signal.signal(signal.SIGINT, user_exit)
-
 # Start the sensor manager
 manager.start()
 
 # Register the animation function that will be ran given milliseconds (in this case it depends on the sample_rate)
-animatedFunction = animation.FuncAnimation(fig, updateGraph, interval=(1.0 / float(SAMPLE_RATE)) * 1000)
+animatedFunction = animation.FuncAnimation(fig, update_graph, interval=(1.0 / float(SAMPLE_RATE)) * 1000)
 plt.show()
 
 # Stop the sensor manager
