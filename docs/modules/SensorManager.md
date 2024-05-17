@@ -32,7 +32,9 @@ Wrapper class for ImuSensor objects
 #### \_\_init\_\_
 
 ```python
-def __init__(sensor_names: List[str], sample_rate: int = 100)
+def __init__(sensor_names: List[str],
+             sample_rate: int = 100,
+             connection_attempts: int = 3)
 ```
 
 Construct a SensorManager object
