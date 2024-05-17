@@ -13,7 +13,7 @@ class SensorManager:
     """
     Wrapper class for ImuSensor objects
     """
-    def __init__(self, sensor_names: List[str], sample_rate: int = 100):
+    def __init__(self, sensor_names: List[str], sample_rate: int = 100, connection_attempts: int = 3):
         """
         Construct a SensorManager object
 
@@ -28,6 +28,7 @@ class SensorManager:
         self._lock = Lock()
         self._callback = None
         self._is_running = False
+        self._connection_attempts = connection_attempts
 
         atexit.register(self.__del__)
 
@@ -83,7 +84,21 @@ class SensorManager:
             await sensor.disconnect()
 
     async def _create_sensors(self, sensor_names) -> None:
-        self._sensors.extend(await connect(sensor_names))
+        sensors = None
+        for i in range(self._connection_attempts):
+            try:
+                sensors = await connect(sensor_names)
+            except (ConnectionError, TypeError) as e:
+                sensors = None
+            if sensors is None:  # Sensor can also become None due to other reasons, so retry regardless
+                if i == self._connection_attempts - 1:
+                    # Max retry amounts reached, exit
+                    raise ConnectionError(f'Failed to connect to sensor(s) {sensor_names} after '
+                                          f'{self._connection_attempts} attempts')
+                continue
+            break
+
+        self._sensors.extend(sensors)
 
     def __receive_reading(self, name: str, data: List[float]) -> None:
         with self._lock:
