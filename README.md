@@ -6,15 +6,16 @@
 Python Package for interfacing the bluetooth IMU module for CreaTe M8 BME.
 
 # Installation
-To install the latest stable version simply run
+To install the latest stable version simply run this in your terminal.
+If you are using PyCharm then you can open the terminal on the bottom left of the screen.
 ```shell
 pip install CreaTeBME
 ```
 
 # Example
-A simple example to connect to a sensor and read and print the data for 10 seconds.
+A simple example to connect to a sensor and read and print the data indefinitely.
+The package automatically connects to the device, so you do not have to connect to it manually.
 ```python
-import time
 from CreaTeBME import SensorManager
 
 # Create a sensor manager for the given sensor names using the given callback
@@ -47,6 +48,10 @@ from CreaTeBME import SensorManager
 
 manager = SensorManager(['A1B2', 'C3D4'])
 ```
+Then start reading data from the sensors by calling the `start` method of the `SensorManager`.
+```python
+manager.start()
+```
 
 To get the IMU measurements the `get_measurements()' method can be used.
 This returns the measurements received since the last time this method was called.
@@ -60,15 +65,11 @@ The measurements are structured like this
 - **[0:2]** = x,y,z of accelerometer in (g).
 - **[3:5]** = x,y,z of gyroscope in (deg/s).
 
-To start reading data from the sensors call the `start` method of the `SensorManager`.
-```python
-manager.start()
-```
-
-Make sure to also call the `stop` method when exiting your program.
+Finally, make sure to also call the `stop` method when exiting your program.
 ```python
 manager.stop()
 ```
+
 ## Manual Connection
 ⚠️**Understanding of** asyncio **required**⚠️
 

@@ -7,7 +7,7 @@ long_description = (this_directory / "README.md").read_text('utf-8')
 
 setup(
     name='CreaTeBME',
-    version='1.0.1',
+    version='1.2.0',
     author='Jonathan Matarazzi',
     author_email='git@jonathanm.nl',
     description='Python Package for interfacing the bluetooth IMU module for CreaTe M8 BME.',
@@ -26,6 +26,6 @@ setup(
     packages=setuptools.find_packages(where='src'),
     python_requires='>=3.7',
     install_requires=[
-        'bleak >= 0.19.5',
+        'bleak >= 0.22.1',
     ]
 )
