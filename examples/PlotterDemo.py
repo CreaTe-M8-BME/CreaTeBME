@@ -1,10 +1,7 @@
 """
-
- This Demo shows how to plot live data from the sensor.
+ This Demo shows how to plot live data from the sensor and the ease of swapping between live and recorded data.
  The data can either be live from the sensor using the SensorManager,
  or it can be recorded data which is emulated like live data using the SensorEmulator.
-
- This Demo will show the ease of swapping between live and recorded data.
 
  If you didn't already record a sensor with the RecorderDemo.py yet, do that first because that data is needed for this demo.
 
@@ -112,7 +109,7 @@ def update_graph(i) -> None:
 manager.start()
 
 # Register the animation function that will be ran given milliseconds (in this case it depends on the sample_rate)
-animatedFunction = animation.FuncAnimation(fig, update_graph, interval=(1.0 / float(SAMPLE_RATE)) * 1000)
+animatedFunction = animation.FuncAnimation(fig, update_graph, interval=1000.0 / float(SAMPLE_RATE), cache_frame_data=False)
 plt.show()
 
 # Stop the sensor manager
