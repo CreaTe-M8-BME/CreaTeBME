@@ -9,7 +9,7 @@ class SensorEmulator:
     """
     An emulator for the SensorManager that reads from a recording file instead.
     """
-    def __init__(self, filename: str):
+    def __init__(self, filename: str, loop: bool = False):
         """
         Construct a SensorEmulator
 
@@ -19,7 +19,9 @@ class SensorEmulator:
             text_content = f.read()
         text_data = json.loads(text_content)
         self._sample_rate: int = text_data['sample_rate']
-        self._data: Dict[str, List[float]] = text_data['data']
+        self._recorded_data: Dict[str, List[float]] = text_data['data']
+        self._data = copy.deepcopy(self._recorded_data)
+        self._loop = loop
         self._lock = Lock()
         self._timer = None
         self._queue = {name: [] for name in self._data.keys()}
@@ -89,8 +91,11 @@ class SensorEmulator:
             for name in self._data.keys():
 
                 if len(self._data[name]) < 1:
-                    self.stop()
-                    return
+                    if self._loop:
+                        self._data = copy.deepcopy(self._recorded_data)
+                    else:
+                        self.stop()
+                        return
 
                 data = self._data[name].pop()
                 self._queue[name].append(data)
