@@ -46,7 +46,6 @@ class SensorEmulator:
         """
         self._timer.cancel()
         self._is_running = False
-        print(f"Recording ended after {time.perf_counter()-self._start_time} seconds")
 
     def is_running(self) -> bool:
         """

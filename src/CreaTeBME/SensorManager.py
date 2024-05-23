@@ -140,7 +140,6 @@ class SensorManager:
         self.get_measurements()
         time.sleep(seconds)
         measurements = self.get_measurements()
-        print(f"Received {len(measurements[list(measurements.keys())[0]])} measurements")
         file_contents = json.dumps({'sample_rate': self._sample_rate, 'data': measurements})
         with open(filename+'.tb', 'x') as f:
             f.write(file_contents)
