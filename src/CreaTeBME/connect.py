@@ -13,7 +13,7 @@ async def connect(sensor_names: List[str]):
     """
     devices = await BleakScanner.discover(return_adv=True)
     imus = list(filter(lambda x: IMU_SERVICE_UUID in x[1][1].service_uuids, devices.items()))
-    chosen_imus = list(filter(lambda x: x[1][1].local_name[-4:] in sensor_names, imus))
+    chosen_imus = list(filter(lambda x: x[1][1].local_name and x[1][1].local_name[-4:] in sensor_names, imus))
     sensors = []
     connected_names = []
     for device in chosen_imus:
