@@ -14,6 +14,7 @@ class SensorEmulator:
         Construct a SensorEmulator
 
         :param filename: The name of the recording file
+        :param loop: Whether to loop the recorded data when it finishes
         """
         with open(filename+'.tb', 'r') as f:
             text_content = f.read()
