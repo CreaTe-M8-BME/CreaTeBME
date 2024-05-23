@@ -46,6 +46,8 @@ class SensorManager:
             self._thread.daemon = True
             self._thread.start()
         self._is_running = True
+        while len(self.get_measurements()[list(self._queue.keys())[0]]) == 0:
+            pass
 
     def stop(self) -> None:
         """
@@ -138,6 +140,7 @@ class SensorManager:
         self.get_measurements()
         time.sleep(seconds)
         measurements = self.get_measurements()
+        print(f"Received {len(measurements[list(measurements.keys())[0]])} measurements")
         file_contents = json.dumps({'sample_rate': self._sample_rate, 'data': measurements})
         with open(filename+'.tb', 'x') as f:
             f.write(file_contents)
