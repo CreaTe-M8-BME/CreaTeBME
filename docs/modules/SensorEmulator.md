@@ -32,7 +32,7 @@ An emulator for the SensorManager that reads from a recording file instead.
 #### \_\_init\_\_
 
 ```python
-def __init__(filename: str)
+def __init__(filename: str, loop: bool = False)
 ```
 
 Construct a SensorEmulator
