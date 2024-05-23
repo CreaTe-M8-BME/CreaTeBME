@@ -40,6 +40,7 @@ Construct a SensorEmulator
 **Arguments**:
 
 - `filename`: The name of the recording file
+- `loop`: Whether to loop the recorded data when it finishes
 
 <a id="SensorEmulator.SensorEmulator.start"></a>
 
