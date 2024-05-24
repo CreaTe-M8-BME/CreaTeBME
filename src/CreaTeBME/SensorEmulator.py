@@ -28,7 +28,7 @@ class SensorEmulator:
         self._is_running = False
 
         self._start_time = None
-        self._iter = 0
+        self._counter = 0
 
     def start(self) -> None:
         """
@@ -38,7 +38,7 @@ class SensorEmulator:
         self._timer.start()
         self._is_running = True
         self._start_time = time.perf_counter()
-        self._iter = 0
+        self._counter = 0
 
     def stop(self) -> None:
         """
@@ -89,8 +89,8 @@ class SensorEmulator:
         warnings.warn(f"Emulating sensor, recording not supported.", RuntimeWarning)
 
     def _step(self):
-        self._iter += 1
-        self._timer = Timer((self._start_time+self._iter*1/self._sample_rate)-time.perf_counter(), self._step)
+        self._counter += 1
+        self._timer = Timer((self._start_time + self._counter * 1 / self._sample_rate) - time.perf_counter(), self._step)
         self._timer.start()
         with self._lock:
             for name in self._data.keys():
