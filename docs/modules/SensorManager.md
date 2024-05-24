@@ -52,6 +52,8 @@ def start() -> None
 
 Start the SensorManager
 
+Blocks until all sensors are sending data.
+
 
 <a id="SensorManager.SensorManager.stop"></a>
 
