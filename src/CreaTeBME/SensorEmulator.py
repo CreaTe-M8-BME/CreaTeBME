@@ -1,5 +1,6 @@
 import json
 import copy
+import time
 import warnings
 from threading import Timer, Lock
 from typing import Callable, Dict, List
@@ -29,6 +30,9 @@ class SensorEmulator:
         self._callback = None
         self._is_running = False
 
+        self._start_time = None
+        self._counter = 0
+
     def start(self) -> None:
         """
         Start the SensorEmulator
@@ -36,6 +40,8 @@ class SensorEmulator:
         self._timer = Timer(1/self._sample_rate, self._step)
         self._timer.start()
         self._is_running = True
+        self._start_time = time.perf_counter()
+        self._counter = 0
 
     def stop(self) -> None:
         """
@@ -86,7 +92,8 @@ class SensorEmulator:
         warnings.warn(f"Emulating sensor, recording not supported.", RuntimeWarning)
 
     def _step(self):
-        self._timer = Timer(1/self._sample_rate, self._step)
+        self._counter += 1
+        self._timer = Timer((self._start_time + self._counter * 1 / self._sample_rate) - time.perf_counter(), self._step)
         self._timer.start()
         with self._lock:
             for name in self._data.keys():

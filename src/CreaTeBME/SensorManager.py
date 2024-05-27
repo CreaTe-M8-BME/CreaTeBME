@@ -39,6 +39,7 @@ class SensorManager:
     def start(self) -> None:
         """
         Start the SensorManager
+        Blocks until all sensors are sending data.
         :return:
         """
         if not self._loop.is_running():
@@ -46,6 +47,8 @@ class SensorManager:
             self._thread.daemon = True
             self._thread.start()
         self._is_running = True
+        while any([len(self.get_measurements()[key]) == 0 for key in list(self._queue.keys())]):
+            pass
 
     def stop(self) -> None:
         """
