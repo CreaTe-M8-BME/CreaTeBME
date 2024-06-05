@@ -47,8 +47,9 @@ class SensorManager:
             self._thread.daemon = True
             self._thread.start()
         self._is_running = True
-        while any([len(self.get_measurements()[key]) == 0 for key in list(self._queue.keys())]):
+        while any([len(self._queue[key]) == 0 for key in list(self._queue.keys())]):
             pass
+        self._clear_queue()
 
     def stop(self) -> None:
         """
